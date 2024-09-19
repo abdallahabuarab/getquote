@@ -97,32 +97,6 @@
                 <div class="destination-header">
                     <h3>Destination Information</h3>
                     <input type="hidden" name="unique_token" value="{{ Str::random(40) }}">
-
-                    <div class="form-group">
-                        <label for="destination_zipcode">Destination Zip Code:</label>
-                        <input type="text" id="destination_zipcode" name="destination_zipcode" class="form-control" placeholder="Enter destination ZIP code" value="{{ old('destination_zipcode') }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="destination_business_name">Business Name (Optional):</label>
-                        <input type="text" id="destination_business_name" name="destination_business_name" class="form-control" placeholder="Enter business name (if applicable)" value="{{ old('destination_business_name') }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="destination_street_number">Street Number:</label>
-                        <input type="text" id="destination_street_number" name="destination_street_number" class="form-control" placeholder="Enter street number" value="{{ old('destination_street_number') }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="destination_route">Route:</label>
-                        <input type="text" id="destination_route" name="destination_route" class="form-control" placeholder="Enter route" value="{{ old('destination_route') }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="destination_locality">Locality:</label>
-                        <input type="text" id="destination_locality" name="destination_locality" class="form-control" placeholder="Enter locality" value="{{ old('destination_locality') }}">
-                    </div>
-
                     <div class="form-group">
                         <label for="destinationLocationType">Select Destination Location Type:</label>
                         <select name="destination_location_type_id" id="destinationLocationType" class="form-control">
@@ -133,12 +107,21 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="destination_zipcode">Destination Zip Code:</label>
+                        <input type="text" id="destination_zipcode" name="destination_zipcode" class="form-control" placeholder="Enter destination ZIP code" value="{{ old('destination_zipcode') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="destination_locality">City:</label>
+                        <input type="text" id="destination_locality" name="destination_locality" class="form-control" placeholder="Enter destination city" value="{{ old('destination_locality') }}">
+                    </div>
 
                     <div class="form-group">
                         <label for="destination_administrative_area_level_1">State:</label>
-                        <input type="text" id="destination_administrative_area_level_1" name="destination_administrative_area_level_1" class="form-control" placeholder="Enter state" value="{{ old('destination_administrative_area_level_1') }}">
+                        <input type="text" id="destination_administrative_area_level_1" name="destination_administrative_area_level_1" class="form-control" placeholder="Enter destination state" value="{{ old('destination_administrative_area_level_1') }}">
                     </div>
-                </div>
+
                 @endif
 
                 <!-- Vehicle Section -->

@@ -37,7 +37,8 @@ class RequestController extends Controller
             'request_latitude' => 'nullable|numeric',
             'request_ip_city' => 'nullable|string|max:50',
             'request_ip_region' => 'nullable|string|max:50',
-            'request_ip_country' => 'nullable|string|max:50',
+            'request_ip_country' => 'nullable|string|max:50', // Validate both manual and API country
+            'manual_country' => 'nullable|string|max:50', // Manual country input validation
             'request_ip_timezone' => 'nullable|string|max:50',
             'request_street_number' => 'nullable|string|max:20',
             'request_route' => 'nullable|string|max:50',
@@ -45,51 +46,53 @@ class RequestController extends Controller
             'request_location_type_id' => 'required|exists:location_types,location_type_id',
         ]);
 
+
+        //  dd($validatedData);
+
+        // Determine which ZIP code is being used (manual or autocomplete)
         if ($request->has('manual_zipcode') && !empty($validatedData['manual_zipcode'])) {
             $zipcode = $validatedData['manual_zipcode'];
+            $city = $validatedData['request_ip_city'];
+            $country = $validatedData['manual_country']; // Use the manually entered country
+
+            // Validate the manually entered address with Google Geocoding API
+            $validLocation = $this->validateManualLocation($zipcode, $city, $country);
+            if (!$validLocation) {
+                return redirect()->back()->withErrors(['manual_zipcode' => 'Invalid location: Please check the ZIP code, city, or country.'])->withInput();
+            }
         } elseif ($request->has('zipcode') && !empty($validatedData['zipcode'])) {
             $zipcode = $validatedData['zipcode'];
+            $country = $validatedData['request_ip_country']; // Country from API
         } else {
             return redirect()->back()->withErrors(['zipcode' => 'Zip Code is required.'])->withInput();
         }
 
+        // Check if the ZIP code is covered and providers exist
         $zipReference = ZipcodeReference::where('zipcode', $zipcode)->first();
         if (!$zipReference) {
             $dropReason = DropReason::where('reason', 'Zip Code is not defined')->first();
-
-            // Insert the rejection into the `Reject` table
             $this->handleRejection($validatedData, $dropReason, $zipcode);
 
-            return redirect()->back()->withErrors([
-                'zipcode' => $dropReason ? $dropReason->reason : 'Zip Code not covered.'
-            ])->withInput();
+            return redirect()->back()->withErrors(['zipcode' => $dropReason ? $dropReason->reason : 'Zip Code not covered.'])->withInput();
         }
 
-
-
-        // Check if there is an active provider covering the ZIP code
         $activeProvider = Provider::where('zipcode', $zipcode)
             ->where('is_active', 'yes')
             ->first();
 
         if (!$activeProvider) {
-            // Fetch drop reason for "No active provider covering ZIP code"
             $dropReason = DropReason::where('reason', 'No active provider covering zip code')->first();
-
-            // Insert the rejection into the `Reject` table
             $this->handleRejection($validatedData, $dropReason, $zipcode);
 
-            return redirect()->back()->withErrors([
-                'zipcode' => $dropReason ? $dropReason->reason : 'No active provider covering this ZIP code.'
-            ])->withInput();
+            return redirect()->back()->withErrors(['zipcode' => $dropReason ? $dropReason->reason : 'No active provider covering this ZIP code.'])->withInput();
         }
 
-
+        // Create the request entry
         $requestEntry = RequestModel::create([
             'request_ip_address' => inet_pton($request->ip()),
             'request_ip_city' => $validatedData['request_ip_city'] ?? 'Default City',
             'request_ip_region' => $validatedData['request_ip_region'] ?? 'Default Region',
-            'request_ip_country' => $validatedData['request_ip_country'] ?? 'Default Country',
+            'request_ip_country' => $validatedData['request_ip_country'] ??$validatedData['manual_country'],
             'request_ip_timezone' => $validatedData['request_ip_timezone'] ?? 'UTC',
             'request_street_number' => $validatedData['request_street_number'] ?? 'N/A',
             'request_route' => $validatedData['request_route'] ?? 'N/A',
@@ -111,35 +114,77 @@ class RequestController extends Controller
             'updated_at' => Carbon::now(),
         ]);
 
-        $service = Service::find($validatedData['service_id'])->name; // or whatever key represents 'tow'
+        $service = Service::find($validatedData['service_id'])->name;
 
         $request->session()->put('service', $service);
-
         $request->session()->put('request_id', $requestEntry->request_id);
 
         return redirect()->route('customer.create', ['request_id' => $requestEntry->request_id]);
     }
 
+    private function validateManualLocation($zipcode, $city, $country)
+{
+    $googleApiKey = env('GOOGLE_MAPS_API_KEY');
+    $address = urlencode(trim($zipcode) . ' ' . trim($city) . ' ' . trim($country));
+
+    $url = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key={$googleApiKey}";
+
+    $response = file_get_contents($url);
+    $json = json_decode($response, true);
+
+    if ($json['status'] === 'OK' && isset($json['results'][0])) {
+        $result = $json['results'][0];
+        $foundZipCode = '';
+        $foundCity = '';
+        $foundCountry = '';
+
+        // Extract relevant address components
+        foreach ($result['address_components'] as $component) {
+            if (in_array('postal_code', $component['types'])) {
+                $foundZipCode = $component['long_name'];
+            }
+            if (in_array('locality', $component['types'])) { // In most cases, city is found in 'locality'
+                $foundCity = $component['long_name'];
+            }
+            if (in_array('administrative_area_level_1', $component['types']) && !$foundCity) { // Sometimes city may be in 'administrative_area_level_1'
+                $foundCity = $component['long_name'];
+            }
+            if (in_array('country', $component['types'])) {
+                $foundCountry = $component['long_name'];
+            }
+        }
+
+        // Use strict matching for ZIP code, city, and country
+        if (strcasecmp($foundZipCode, $zipcode) === 0 && strcasecmp($foundCity, $city) === 0 && strcasecmp($foundCountry, $country) === 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    logger()->error('Invalid location: ', [
+        'zipcode' => $zipcode,
+        'city' => $city,
+        'country' => $country,
+        'response' => $json
+    ]);
+
+    return false;
+}
+
 
     private function handleRejection($validatedData, $reason, $zipcode)
     {
-        // Fetch the drop reason from the DropReason table based on the provided reason
+        // Fetch the drop reason from the DropReason table
         $rejectReason = DropReason::where('reason', $reason)->first();
-
-        // Ensure the ZIP code is cleaned properly
         $rejectZipcode = preg_replace('/\D/', '', $validatedData['manual_zipcode'] ?? $validatedData['zipcode']);
 
-        // Validate ZIP code length before saving
         if (strlen($rejectZipcode) > 20) {
-            return redirect()->back()->withErrors([
-                'zipcode' => 'The ZIP code is too long.'
-            ])->withInput();
+            return redirect()->back()->withErrors(['zipcode' => 'The ZIP code is too long.'])->withInput();
         }
 
-        // Temporarily disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Insert the rejection into the Reject table
         Reject::create([
             'reject_ip_address' => inet_pton($validatedData['request_ip_address'] ?? '127.0.0.1'),
             'reject_ip_city' => $validatedData['request_ip_city'] ?? 'Default City',
@@ -162,19 +207,14 @@ class RequestController extends Controller
             'reject_cross_street' => $validatedData['request_cross_street'] ?? 'N/A',
             'reject_location_type_id' => $validatedData['request_location_type_id'],
             'reject_location_name' => $validatedData['request_location_name'] ?? 'N/A',
-            'reject_reason' => $rejectReason->reason_id ?? 1, // Assign the reason_id from DropReason, default to 1 if not found
+            'reject_reason' => $rejectReason->reason_id ?? 1,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
 
-        // Re-enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
-
-  public function web(){
-    return view('websocket');
-  }
-
+    public function web(){
+return view('websocket');
+    }
 }
-
-

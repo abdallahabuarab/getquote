@@ -10,7 +10,7 @@
         /* Main Page Styles */
         body {
             font-family: Arial, sans-serif;
-            background-color: #e0f7fa; /* Light cyan background */
+            background-color: #e0f7fa;
             color: #333;
         }
 
@@ -40,7 +40,7 @@
         }
 
         .btn-primary {
-            background-color: #00838f; /* Dark cyan */
+            background-color: #00838f;
             width: 100%;
             border-radius: 30px;
             font-size: 1.2rem;
@@ -50,7 +50,7 @@
         }
 
         .btn-primary:hover {
-            background-color: #006064; /* Darker shade on hover */
+            background-color: #006064;
         }
 
         .btn-info {
@@ -66,7 +66,6 @@
             padding-left: 0;
         }
 
-        /* Additional Styling for Text */
         .info-text {
             text-align: center;
             font-size: 1.2rem;
@@ -141,12 +140,14 @@
                     <label class="form-check-label" for="manualInputToggle">Manually Enter Location</label>
                 </div>
 
+                <!-- Autocomplete Section -->
                 <div id="autocompleteLocationSection" class="form-group">
                     <label for="locationInput">Location:</label>
                     <input id="locationInput" type="text" name="locationInput" class="form-control" placeholder="Search for a location or use your location">
                     <button type="button" onclick="getLocation()" class="btn btn-info">Use My Location</button>
                 </div>
 
+                <!-- Manual Input Section -->
                 <div id="manualLocationSection" class="d-none">
                     <div class="form-group">
                         <label for="manualZipCode">Zip Code:</label>
@@ -158,30 +159,27 @@
                         <input id="manualCity" type="text" name="request_ip_city" class="form-control" placeholder="Enter City">
                     </div>
 
-                    <div class="form-group">
-                        <label for="manualRegion">Region:</label>
-                        <input id="manualRegion" type="text" name="request_ip_region" class="form-control" placeholder="Enter Region">
-                    </div>
+                    {{-- <div class="form-group">
+                        <label for="manualRegion">Region/State:</label>
+                        <input id="manualRegion" type="text" name="request_ip_region" class="form-control" placeholder="Enter Region/State">
+                    </div> --}}
 
                     <div class="form-group">
                         <label for="manualCountry">Country:</label>
-                        <input id="manualCountry" type="text" name="request_ip_country" class="form-control" placeholder="Enter Country">
+                        <input id="manualCountry" type="text" name="manual_country" class="form-control" placeholder="Enter Country">
                     </div>
 
-                    <div class="form-group">
-                        <label for="manualTimezone">Timezone:</label>
-                        <input id="manualTimezone" type="text" name="request_ip_timezone" class="form-control" placeholder="Enter Timezone">
-                    </div>
+
 
                     <div class="form-group">
                         <label for="manualStreetNumber">Street Number:</label>
                         <input id="manualStreetNumber" type="text" name="request_street_number" class="form-control" placeholder="Enter Street Number">
                     </div>
 
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         <label for="manualRoute">Route:</label>
                         <input id="manualRoute" type="text" name="request_route" class="form-control" placeholder="Enter Route">
-                    </div>
+                    </div> --}}
                 </div>
 
                 <!-- Hidden Fields for Extracted Data -->
@@ -198,7 +196,7 @@
         </div>
     </div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4mO0ojwx3yLd6tf68E62eNRyZ8DzhDWc&libraries=places&callback=initAutocomplete" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initAutocomplete" async defer></script>
 
     <script>
         let autocomplete;
@@ -296,6 +294,3 @@
 </body>
 
 </html>
-
-
-

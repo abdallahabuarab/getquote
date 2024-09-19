@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Provider;
-use App\Models\Request as RequestModel;
-use Illuminate\Http\Request;
 use App\Models\Customer;
+use App\Models\Provider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Models\Request as RequestModel;
 
 class ProviderResponseController extends Controller
 {
@@ -18,8 +19,7 @@ class ProviderResponseController extends Controller
         if (!$provider || !$requestEntry || !$customer) {
             return redirect()->route('expired')->withErrors(['error' => 'Link has expired or is invalid.']);
         }
-
-        // Display the form with the request details
-        return view('provider-response', compact('provider', 'requestEntry','customer'));
+        $expirationTime = session('expiration_time', Carbon::now()->timestamp);
+        return view('provider-response', compact('provider', 'requestEntry','customer','expirationTime'));
     }
 }
