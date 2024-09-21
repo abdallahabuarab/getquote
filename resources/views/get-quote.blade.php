@@ -166,9 +166,15 @@
 
                     <div class="form-group">
                         <label for="manualCountry">Country:</label>
-                        <input id="manualCountry" type="text" name="manual_country" class="form-control" placeholder="Enter Country">
+                        <select id="manualCountry" name="manual_country" class="form-control">
+                            <option value="">Select a country</option>
+                            <option value="United States">United States</option>
+                            <option value="Canada">Canada</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Australia">Australia</option>
+                            <!-- Add more countries as needed -->
+                        </select>
                     </div>
-
 
 
                     <div class="form-group">
@@ -196,7 +202,7 @@
         </div>
     </div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initAutocomplete" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4mO0ojwx3yLd6tf68E62eNRyZ8DzhDWc&libraries=places&callback=initAutocomplete" async defer></script>
 
     <script>
         let autocomplete;
@@ -220,6 +226,10 @@
                 if (component.types[0] === "postal_code") {
                     zipCode = component.long_name;
                     document.getElementById('zipCode').value = zipCode;
+                }
+                if (component.types.includes("locality")) { // City
+                    city = component.long_name;
+                    document.getElementById('manualCity').value = city;
                 }
                 if (component.types[0] === "country") {
                     country = component.long_name;

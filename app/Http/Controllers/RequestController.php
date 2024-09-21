@@ -47,7 +47,7 @@ class RequestController extends Controller
         ]);
 
 
-        //  dd($validatedData);
+         // dd($validatedData);
 
         // Determine which ZIP code is being used (manual or autocomplete)
         if ($request->has('manual_zipcode') && !empty($validatedData['manual_zipcode'])) {
