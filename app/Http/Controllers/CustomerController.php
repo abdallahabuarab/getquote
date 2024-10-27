@@ -3,13 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\DropReason;
 use Illuminate\Http\Request;
+use App\Events\CustomerFormFilled;
 
 class CustomerController extends Controller
 {
-    public function create($request_id)
+    public function create($requestId)
     {
-        return view('customer-form', compact('request_id'));
+        return view('customer-form', compact('requestId'));
+    }
+    public function showLoading($requestId)
+    {
+        return view('customer-loading', ['request_id' => $requestId]);
+    }
+    public function showApology($requestId,$reason)
+    {
+        $dropReason = DropReason::find($reason)->reason;
+        return view('customer-apology', ['request_id' => $requestId, 'dropReason' => $dropReason]);
     }
     public function store(Request $request)
     {
@@ -30,7 +41,7 @@ class CustomerController extends Controller
             return redirect()->route('requests.create')->withErrors(['error' => 'Request session expired. Please try again.']);
         }
 
-        Customer::create([
+        $customer = Customer::create([
             'request_id' => $requestId,
             'given_name' => $validatedData['given_name'],
             'surname' => $validatedData['surname'],
@@ -40,8 +51,11 @@ class CustomerController extends Controller
             'communication_preference' => implode(',', $validatedData['communication_preference']),
         ]);
 
+        return redirect()->route('payment.create', ['request_id' => $requestId]);
 
-        return redirect()->route('destination-vehicle.create', ['request_id' => $requestId]);
+
     }
+
+
 
 }

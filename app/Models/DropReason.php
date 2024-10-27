@@ -9,6 +9,7 @@ class DropReason extends Model
 {
     use HasFactory;
     protected $fillable = ['reason'];
+    protected $primaryKey = 'reason_id';
 
     public function rejects()
     {

@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Tow Now - Get a Quote</title>
     <style>
@@ -282,13 +284,13 @@
             const autocompleteSection = document.getElementById('autocompleteLocationSection');
             const isChecked = document.getElementById('manualInputToggle').checked;
 
-            if (isChecked) {
-                manualSection.classList.remove('d-none');
-                autocompleteSection.classList.add('d-none');
-            } else {
-                manualSection.classList.add('d-none');
-                autocompleteSection.classList.remove('d-none');
-            }
+            // if (isChecked) {
+            //     manualSection.classList.remove('d-none');
+            //     autocompleteSection.classList.add('d-none');
+            // } else {
+            //     manualSection.classList.add('d-none');
+            //     autocompleteSection.classList.remove('d-none');
+            // }
         }
 
         function handleLocationError(browserHasGeolocation) {

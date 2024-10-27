@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
+
     <title>Request Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -88,18 +90,19 @@
 <body>
 
     <div class="container">
-        <h1>Request Details for {{ $provider->name }}</h1>
+        <h1>Request Details for {{ $provider->provider_name }}</h1>
 
-        <p><strong>Customer Name:</strong> {{ $customer->given_name }}</p>
         <p><strong>Service:</strong> {{ $requestEntry->service->name }}</p>
         <p><strong>Class:</strong> {{ $requestEntry->classmodel->name }}</p>
         <p><strong>Vehicle Model:</strong> {{ $requestEntry->vehicle->vehicle_model }}</p>
         <p><strong>Vehicle Color:</strong> {{ $requestEntry->vehicle->vehicle_color }}</p>
-
+        <p><strong>Country:</strong> {{ $requestEntry->request_ip_country }}</p>
+        <p><strong>City:</strong> {{ $requestEntry->request_ip_city }}</p>
+        <p><strong>ZipCode:</strong> {{ $requestEntry->request_zipcode }}</p>
         <!-- Timer -->
         <div id="timer">Time remaining: 05:00</div>
 
-        <form method="POST" action="">
+        <form method="POST" action="{{ route('provider.response.submit', ['provider_id' => $provider->provider_id, 'request_id' => $requestEntry->request_id]) }}">
             @csrf
             <!-- Accept and Reject Buttons -->
             <div class="d-flex justify-content-between">
@@ -112,13 +115,19 @@
                 <label for="drop_reason">Drop Reason:</label>
                 <select name="drop_reason" id="drop_reason">
                     @foreach(\App\Models\DropReason::all() as $dropReason)
-                    <option value="{{ $dropReason->id }}">{{ $dropReason->reason }}</option>
+                    <option value="{{ $dropReason->reason_id }}">{{ $dropReason->reason }}</option>
                     @endforeach
                 </select>
 
                 <!-- Submit Button for Reject Action -->
                 <button type="submit" name="action" value="reject" class="btn btn-danger mt-3">Submit Rejection</button>
             </div>
+
+            <!-- Hidden Field for Accept Action -->
+            <input type="hidden" name="action" id="action" value="">
+
+            <!-- Submit Button for Accept Action -->
+            <button type="submit" id="submitAccept" name="action" value="accept" style="display: none;"></button>
         </form>
     </div>
 
@@ -151,108 +160,24 @@
             }
         }, 1000);
 
-        // Handle Reject Button Click
-        rejectBtn.addEventListener('click', function () {
-            dropReasonSection.classList.remove('hidden');
-            acceptBtn.disabled = false; // Allow switching to accept after clicking reject
-        });
 
-        // Handle Accept Button Click
-        acceptBtn.addEventListener('click', function () {
-            dropReasonSection.classList.add('hidden'); // Hide the reject section if they change to accept
-            window.location.href = "";
-        });
+        document.getElementById('rejectBtn').addEventListener('click', function() {
+        // Show the drop reason section when 'Reject' is clicked
+        document.getElementById('dropReasonSection').style.display = 'block';
+        document.getElementById('action').value = 'reject'; // Set action value to 'reject'
+    });
+
+    document.getElementById('acceptBtn').addEventListener('click', function() {
+        // Hide the drop reason section if 'Accept' is clicked
+        document.getElementById('dropReasonSection').style.display = 'none';
+        document.getElementById('drop_reason').value = ''; // Clear drop reason
+
+        // Automatically submit the form for the 'Accept' action
+        document.getElementById('action').value = 'te'; // Set action value to 'accept'
+        document.getElementById('submitAccept').click();
+    });
     </script>
 
 </body>
 
 </html>
-{{-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Details</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* Your existing CSS */
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-    <h1>Request Details for {{ $provider->name }}</h1>
-
-    <p><strong>Customer Name:</strong> {{ $customer->given_name }}</p>
-    <p><strong>Service:</strong> {{ $requestEntry->service->name }}</p>
-    <p><strong>Class:</strong> {{ $requestEntry->classmodel->name }}</p>
-    <p><strong>Vehicle Model:</strong> {{ $requestEntry->vehicle->vehicle_model }}</p>
-    <p><strong>Vehicle Color:</strong> {{ $requestEntry->vehicle->vehicle_color }}</p>
-
-    <div id="timer"></div>
-
-    <form method="POST" action="">
-        @csrf
-        <div id="action-buttons">
-            <button type="button" class="btn btn-success" id="acceptBtn">Accept</button>
-            <button type="button" class="btn btn-danger" id="rejectBtn">Reject</button>
-        </div>
-
-        <div id="dropReasonSection" class="hidden">
-            <label for="drop_reason">Drop Reason:</label>
-            <select name="drop_reason" id="drop_reason">
-                @foreach(\App\Models\DropReason::all() as $dropReason)
-                <option value="{{ $dropReason->id }}">{{ $dropReason->reason }}</option>
-                @endforeach
-            </select>
-            <button type="submit" class="btn btn-danger">Submit Rejection</button>
-        </div>
-    </form>
-</div>
-
-<script>
-    const expirationTimestamp = {{ $expirationTime }} * 1000; // Convert to milliseconds
-    let timeRemaining = Math.floor((expirationTimestamp - Date.now()) / 1000); // Remaining time in seconds
-
-    const timerElement = document.getElementById('timer');
-    const rejectBtn = document.getElementById('rejectBtn');
-    const acceptBtn = document.getElementById('acceptBtn');
-    const dropReasonSection = document.getElementById('dropReasonSection');
-
-    // Countdown Timer
-    const countdown = setInterval(function () {
-        let minutes = Math.floor(timeRemaining / 60);
-        let seconds = timeRemaining % 60;
-
-        // Format seconds
-        seconds = seconds < 10 ? '0' + seconds : seconds;
-
-        timerElement.innerHTML = `Time remaining: ${minutes}:${seconds}`;
-
-        timeRemaining--;
-
-        if (timeRemaining < 0) {
-            clearInterval(countdown);
-            timerElement.innerHTML = "This link has expired.";
-            acceptBtn.disabled = true;
-            rejectBtn.disabled = true;
-        }
-    }, 1000);
-
-    // Handle Reject Button Click
-    rejectBtn.addEventListener('click', function () {
-        dropReasonSection.classList.remove('hidden');
-        acceptBtn.disabled = false; // Allow switching to accept after clicking reject
-    });
-
-    // Handle Accept Button Click
-    acceptBtn.addEventListener('click', function () {
-        dropReasonSection.classList.add('hidden'); // Hide the reject section if they change to accept
-        window.location.href = "";
-    });
-</script>
-
-</body>
-</html> --}}

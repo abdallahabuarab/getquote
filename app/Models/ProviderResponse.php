@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class ProviderResponse extends Model
 {
     use HasFactory;
+    public $timestamps = false;
+
     protected $fillable = [
-        'request_id', 'provider_id', 'provider_response',
+        'request_id', 'provider_id', 'provider_respose',
         'eta', 'reason_id', 'provider_response_time'
     ];
 

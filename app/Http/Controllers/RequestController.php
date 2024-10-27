@@ -50,6 +50,7 @@ class RequestController extends Controller
          // dd($validatedData);
 
         // Determine which ZIP code is being used (manual or autocomplete)
+        $request_address_source = 'GAPI';
         if ($request->has('manual_zipcode') && !empty($validatedData['manual_zipcode'])) {
             $zipcode = $validatedData['manual_zipcode'];
             $city = $validatedData['request_ip_city'];
@@ -58,7 +59,8 @@ class RequestController extends Controller
             // Validate the manually entered address with Google Geocoding API
             $validLocation = $this->validateManualLocation($zipcode, $city, $country);
             if (!$validLocation) {
-                return redirect()->back()->withErrors(['manual_zipcode' => 'Invalid location: Please check the ZIP code, city, or country.'])->withInput();
+                $request_address_source = 'Manual';
+                return redirect()->route('check');
             }
         } elseif ($request->has('zipcode') && !empty($validatedData['zipcode'])) {
             $zipcode = $validatedData['zipcode'];
@@ -104,6 +106,7 @@ class RequestController extends Controller
             'request_priority' => $validatedData['request_priority'] ?? 'normal',
             'request_location_type_id' => $validatedData['request_location_type_id'],
             'request_service' => $validatedData['service_id'],
+            'request_address_source'=>$request_address_source,
             'request_class' => $validatedData['class_id'],
             'request_device' => $validatedData['request_device'] ?? 'Unknown Device',
             'request_os' => $validatedData['request_os'] ?? 'Unknown OS',
@@ -118,8 +121,9 @@ class RequestController extends Controller
 
         $request->session()->put('service', $service);
         $request->session()->put('request_id', $requestEntry->request_id);
+        $request->session()->put('request_id', $requestEntry->request_id);
 
-        return redirect()->route('customer.create', ['request_id' => $requestEntry->request_id]);
+        return redirect()->route('destination-vehicle.create', ['request_id' => $requestEntry->request_id]);
     }
 
     private function validateManualLocation($zipcode, $city, $country)
@@ -214,7 +218,24 @@ class RequestController extends Controller
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
-    public function web(){
-return view('websocket');
-    }
+    public function check(Request $request)
+{
+    // Example: Fetching address details by request_id (adjust according to your logic)
+    $request_id = $request->input('request_id');
+    $requestData = RequestModel::find($request_id);
+
+    // Assuming these fields exist in the request model (replace with actual attributes)
+    $manual_street_number = $requestData->request_street_number ?? 'N/A';
+    $manual_route = $requestData->manual_route ?? 'N/A';
+    $manual_city = $requestData->manual_city ?? 'N/A';
+    $manual_state = $requestData->manual_state ?? 'N/A';
+    $manual_zipcode = $requestData->manual_zipcode ?? 'N/A';
+    $manual_country = $requestData->manual_country ?? 'N/A';
+
+    return view('address-confirmation', compact('manual_street_number', 'manual_route', 'manual_city', 'manual_state', 'manual_zipcode', 'manual_country', 'request_id'));
+}
+public function web(){
+    return view('websocket');
+}
+
 }

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('provider_id');
             $table->enum('provider_respose', ['accept', 'reject', 'expired']);
             $table->integer('eta')->nullable();
-            $table->unsignedTinyInteger('reason_id');
+            $table->unsignedTinyInteger('reason_id')->nullable();
             $table->dateTime('provider_response_time');
 
             $table->foreign('request_id')->references('request_id')->on('requests')->onDelete('cascade');

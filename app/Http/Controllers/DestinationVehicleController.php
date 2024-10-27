@@ -52,11 +52,7 @@ class DestinationVehicleController extends Controller
         return redirect()->back()->withErrors(['error' => 'Request not found.']);
     }
 
-    $customer = Customer::where('request_id', $requestId)->first();
 
-    if (!$customer) {
-        return redirect()->back()->withErrors(['error' => 'Customer not found.']);
-    }
 
     $service = Service::find($requestEntry->request_service);
     if ($service && strtolower($service->name) === 'tow') {
@@ -75,15 +71,15 @@ class DestinationVehicleController extends Controller
         $validatedDestinationData['destination_zipcode'] = preg_replace('/\D/', '', $validatedDestinationData['destination_zipcode']);
 
         // Validate the destination address with Google Geocoding API
-        $validDestination = $this->validateDestinationLocation(
-            $validatedDestinationData['destination_zipcode'],
-            $validatedDestinationData['destination_locality'],
-            $validatedDestinationData['destination_administrative_area_level_1']
-        );
+        // $validDestination = $this->validateDestinationLocation(
+        //     $validatedDestinationData['destination_zipcode'],
+        //     $validatedDestinationData['destination_locality'],
+        //     $validatedDestinationData['destination_administrative_area_level_1']
+        // );
 
-        if (!$validDestination) {
-            return redirect()->back()->withErrors(['destination_zipcode' => 'Invalid destination location: Please check the ZIP code, city, or state.'])->withInput();
-        }
+        // if (!$validDestination) {
+        //     return redirect()->back()->withErrors(['destination_zipcode' => 'Invalid destination location: Please check the ZIP code, city, or state.'])->withInput();
+        // }
 
         // Insert destination information
         Destination::create([
@@ -120,7 +116,7 @@ class DestinationVehicleController extends Controller
         ->first();
 
     if ($provider) {
-        $expires = Carbon::now()->addMinutes(5);
+        $expires = Carbon::now()->addMinutes(50);
         $token = Str::random(40);
 
         $secureLink = URL::temporarySignedRoute('provider.response', $expires, [
@@ -132,7 +128,6 @@ class DestinationVehicleController extends Controller
 
 
         Mail::send('emails.provider-notification', [
-            'customer_name' => $customer->given_name . ' ' . $customer->surname,
             'service_name' => Service::find($requestEntry->request_service)->name,
             'secureLink' => $secureLink,
             'provider' => $provider,
@@ -142,7 +137,7 @@ class DestinationVehicleController extends Controller
         });
     }
 
-    return redirect()->route('requests.web')->with('success', 'Details saved successfully, and the provider has been notified.');
+    return redirect()->route('customer.loading', ['request_id' => $requestEntry->request_id]);
 }
 
 /**

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Customer Information</title>
     <style>
@@ -76,6 +77,8 @@
 
 <body>
 
+
+
     <div class="container mt-4">
         <p class="info-text">
             Please provide your information below so that we can contact you regarding your request. Our team is committed to offering you the best service possible.
@@ -87,16 +90,7 @@
             <h2>Customer Information</h2>
             <form id="customerForm" method="POST" action="{{ route('customer.store') }}">
                 @csrf
-                @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
-                <input type="hidden" name="request_id" value="{{ $request_id }}">
+                <input type="hidden" name="request_id" value="{{ $requestId }}">
 
                 <!-- Given Name -->
                 <div class="form-group">
@@ -143,6 +137,38 @@
         </div>
     </div>
 
+
+
+<style>
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    #loading-page p {
+        font-size: 18px;
+        color: #555;
+        margin-top: 20px;
+    }
+</style>
 </body>
 
 </html>

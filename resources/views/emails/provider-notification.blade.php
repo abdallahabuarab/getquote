@@ -6,7 +6,7 @@
 <body>
     <h1>Hello, {{ $provider->provider_name }}</h1>
 
-    <p>A new service request has been made by {{ $customer_name }} for {{ $service_name }}.</p>
+    <p>A new service request has been made for {{ $service_name }}.</p>
 
     <p>Please click the button below to review the details:</p>
 
