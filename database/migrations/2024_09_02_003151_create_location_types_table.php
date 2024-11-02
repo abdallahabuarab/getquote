@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('location_types', function (Blueprint $table) {
             $table->tinyIncrements('location_type_id');
-    $table->string('location_type', 20);
+    $table->string('location_type', 50);
         });
     }
 
