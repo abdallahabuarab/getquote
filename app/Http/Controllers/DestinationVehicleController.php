@@ -18,13 +18,18 @@ use App\Models\Request as RequestModel;
 
 class DestinationVehicleController extends Controller
 {
-    public function create($request_id)
+    public function create($request_id, Request $request)
     {
+        $providerId = $request->query('provider_id'); // Get provider ID from query parameter
+        // Retrieve the provider based on the ID
+        $provider = Provider::find($providerId);
+        // Other necessary data
         $service = session()->get('service', 'other');
         $locationTypes = \App\Models\LocationType::all();
 
-        return view('destination-vehicle-form', compact('request_id', 'locationTypes', 'service'));
+        return view('destination-vehicle-form', compact('request_id', 'locationTypes', 'service', 'provider'));
     }
+
 
     public function store(Request $request)
 {
@@ -51,7 +56,11 @@ class DestinationVehicleController extends Controller
     if (!$requestEntry) {
         return redirect()->back()->withErrors(['error' => 'Request not found.']);
     }
-
+    $providerId = $request->input('provider_id');
+    $provider = Provider::find($providerId);
+    if (!$provider) {
+        return redirect()->back()->withErrors(['error' => 'Provider not found.']);
+    }
 
 
     $service = Service::find($requestEntry->request_service);
@@ -110,36 +119,29 @@ class DestinationVehicleController extends Controller
         'Plate' => $validatedData['plate'],
     ]);
 
-    // Notify provider as in your existing code...
-    $provider = Provider::where('zipcode', $requestEntry->request_zipcode)
-        ->where('is_active', 'yes')
-        ->first();
 
-    if ($provider) {
-        $expires = Carbon::now()->addMinutes(50);
-        $token = Str::random(40);
+    $expires = Carbon::now()->addMinutes(50);
+    $token = Str::random(40);
 
-        $secureLink = URL::temporarySignedRoute('provider.response', $expires, [
-            'provider_id' => $provider->provider_id,
-            'request_id' => $requestEntry->request_id,
-            'token' => $token
-        ]);
-        session(['expiration_time' => $expires->timestamp]);
+    $secureLink = URL::temporarySignedRoute('provider.response', $expires, [
+        'provider_id' => $provider->provider_id,
+        'request_id' => $requestEntry->request_id,
+        'token' => $token
+    ]);
+    session(['expiration_time' => $expires->timestamp]);
 
-
-        Mail::send('emails.provider-notification', [
-            'service_name' => Service::find($requestEntry->request_service)->name,
-            'secureLink' => $secureLink,
-            'provider' => $provider,
-        ], function ($message) use ($provider) {
-            $message->to($provider->provider_email)
-                    ->subject('New Service Request');
-        });
-    }
+    // Send email notification to the provider
+    Mail::send('emails.provider-notification', [
+        'service_name' => $service->name,
+        'secureLink' => $secureLink,
+        'provider' => $provider,
+    ], function ($message) use ($provider) {
+        $message->to($provider->provider_email)
+                ->subject('New Service Request');
+    });
 
     return redirect()->route('customer.loading', ['request_id' => $requestEntry->request_id]);
 }
-
 /**
  * Validate the destination location using the Google Geocoding API.
  *

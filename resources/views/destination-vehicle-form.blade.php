@@ -94,7 +94,7 @@
 
             <form id="destinationVehicleForm" method="POST" action="{{ route('destination-vehicle.store') }}">
                 @csrf
-
+                <input type="hidden" name="provider_id" value="{{ $provider->provider_id ?? '' }}">
                 @if($service == 'tow')
                 <div class="destination-header">
                     <h3>Destination Information</h3>

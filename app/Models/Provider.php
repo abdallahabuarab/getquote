@@ -14,6 +14,7 @@ class Provider extends Model
         'contact_phone', 'is_active', 'weekend_m', 'holiday_m', 'evening_m',
         'dispatch_method', 'request_processing', 'payment_distribution'
     ];
+    protected $primaryKey = 'provider_id';
     public function zipcodeCoverages()
     {
         return $this->hasMany(ZipcodeCoverage::class);
