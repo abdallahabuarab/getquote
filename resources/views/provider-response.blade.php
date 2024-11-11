@@ -58,19 +58,32 @@
             color: #333;
         }
 
-        button {
-            margin-top: 30px;
+        .btn-custom {
+            margin-top: 20px;
             padding: 12px;
-            background-color: #5c6bc0;
-            color: white;
-            border: none;
             border-radius: 8px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
         }
 
-        button:hover {
+        .btn-accept {
+            background-color: #5c6bc0;
+            color: white;
+            border: none;
+        }
+
+        .btn-accept:hover {
             background-color: #3949ab;
+        }
+
+        .btn-reject {
+            background-color: #e57373;
+            color: white;
+            border: none;
+        }
+
+        .btn-reject:hover {
+            background-color: #d32f2f;
         }
 
         .hidden {
@@ -99,57 +112,60 @@
         <p><strong>Country:</strong> {{ $requestEntry->request_ip_country }}</p>
         <p><strong>City:</strong> {{ $requestEntry->request_ip_city }}</p>
         <p><strong>ZipCode:</strong> {{ $requestEntry->request_zipcode }}</p>
-        <!-- Timer -->
+
         <div id="timer">Time remaining: 05:00</div>
 
         <form method="POST" action="{{ route('provider.response.submit', ['provider_id' => $provider->provider_id, 'request_id' => $requestEntry->request_id]) }}">
             @csrf
-            <!-- Accept and Reject Buttons -->
-            <div class="d-flex justify-content-between">
-                <button type="button" id="acceptBtn" class="btn btn-success">Accept</button>
-                <button type="button" id="rejectBtn" class="btn btn-danger">Reject</button>
+
+            <div class="d-flex justify-content-between mt-3">
+                <button type="button" id="acceptBtn" class="btn btn-custom btn-accept">Accept</button>
+                <button type="button" id="rejectBtn" class="btn btn-custom btn-reject">Reject</button>
             </div>
 
-            <!-- Dropdown for Drop Reasons (Initially Hidden) -->
+            <div id="etaSection" class="hidden mt-3">
+                <label for="eta">ETA (Estimated Time of Arrival):</label>
+                <select name="eta" id="eta">
+                    @for ($i = 5; $i <= 60; $i += 5)
+                        <option value="{{ $i }}">{{ $i }} minutes</option>
+                    @endfor
+                    @for ($i = 75; $i <= 120; $i += 15)
+                        <option value="{{ $i }}">{{ $i }} minutes</option>
+                    @endfor
+                </select>
+                <button type="submit" name="action" value="accept" class="btn btn-custom btn-accept mt-3">Confirm Accept</button>
+            </div>
+
             <div id="dropReasonSection" class="hidden mt-3">
                 <label for="drop_reason">Drop Reason:</label>
                 <select name="drop_reason" id="drop_reason">
                     @foreach(\App\Models\DropReason::all() as $dropReason)
-                    <option value="{{ $dropReason->reason_id }}">{{ $dropReason->reason }}</option>
+                        <option value="{{ $dropReason->reason_id }}">{{ $dropReason->reason }}</option>
                     @endforeach
                 </select>
 
-                <!-- Submit Button for Reject Action -->
-                <button type="submit" name="action" value="reject" class="btn btn-danger mt-3">Submit Rejection</button>
+                <button type="submit" name="action" value="reject" class="btn btn-reject mt-3">Submit Rejection</button>
             </div>
 
-            <!-- Hidden Field for Accept Action -->
             <input type="hidden" name="action" id="action" value="">
-
-            <!-- Submit Button for Accept Action -->
-            <button type="submit" id="submitAccept" name="action" value="accept" style="display: none;"></button>
         </form>
     </div>
 
     <script>
-        const expirationTime = {{ $expirationTime }} * 1000; // Convert to milliseconds
-        let timeRemaining = Math.floor((expirationTime - Date.now()) / 1000); // Remaining time in seconds
+        const expirationTime = {{ $expirationTime }} * 1000;
+        let timeRemaining = Math.floor((expirationTime - Date.now()) / 1000);
 
         const timerElement = document.getElementById('timer');
         const rejectBtn = document.getElementById('rejectBtn');
         const acceptBtn = document.getElementById('acceptBtn');
+        const etaSection = document.getElementById('etaSection');
         const dropReasonSection = document.getElementById('dropReasonSection');
 
-        // Countdown Timer
         const countdown = setInterval(function () {
             let minutes = Math.floor(timeRemaining / 60);
             let seconds = timeRemaining % 60;
-
-            // Format seconds
             seconds = seconds < 10 ? '0' + seconds : seconds;
-
             timerElement.innerHTML = `Time remaining: ${minutes}:${seconds}`;
-
             timeRemaining--;
 
             if (timeRemaining < 0) {
@@ -160,22 +176,17 @@
             }
         }, 1000);
 
+        rejectBtn.addEventListener('click', function() {
+            dropReasonSection.style.display = 'block';
+            etaSection.style.display = 'none';
+            document.getElementById('action').value = 'reject';
+        });
 
-        document.getElementById('rejectBtn').addEventListener('click', function() {
-        // Show the drop reason section when 'Reject' is clicked
-        document.getElementById('dropReasonSection').style.display = 'block';
-        document.getElementById('action').value = 'reject'; // Set action value to 'reject'
-    });
-
-    document.getElementById('acceptBtn').addEventListener('click', function() {
-        // Hide the drop reason section if 'Accept' is clicked
-        document.getElementById('dropReasonSection').style.display = 'none';
-        document.getElementById('drop_reason').value = ''; // Clear drop reason
-
-        // Automatically submit the form for the 'Accept' action
-        document.getElementById('action').value = 'te'; // Set action value to 'accept'
-        document.getElementById('submitAccept').click();
-    });
+        acceptBtn.addEventListener('click', function() {
+            etaSection.style.display = 'block';
+            dropReasonSection.style.display = 'none';
+            document.getElementById('action').value = 'accept';
+        });
     </script>
 
 </body>

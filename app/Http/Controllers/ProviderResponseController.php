@@ -37,8 +37,19 @@ class ProviderResponseController extends Controller
     }
     public function submitResponse(Request $request, $provider_id, $request_id)
     {
+        $existingResponse = ProviderResponse::where('provider_id', $provider_id)
+        ->where('request_id', $request_id)
+        ->first();
+
+    if ($existingResponse) {
+        // Optionally, you can add a flash message or handle this case in another way
+        return redirect()->back()->withErrors(['message' => 'Response already submitted.']);
+    }
         $response = $request->input('action'); // 'accept' or 'reject'
         $reasonId = null;
+        $eta = null;
+
+
         if ($response === 'reject') {
             $reasonId = $request->input('drop_reason');
 
@@ -46,22 +57,25 @@ class ProviderResponseController extends Controller
             if (!$reasonId) {
                 return redirect()->back()->withErrors(['drop_reason' => 'Please select a drop reason.']);
             }
+        }else{
+            $eta = $request->input('eta');
 
         }
 
-        // Save provider response in the database
-         ProviderResponse::create([
+        // Save provider response and ETA in the database
+        ProviderResponse::create([
             'request_id' => $request_id,
             'provider_id' => $provider_id,
             'provider_respose' => $response,
             'reason_id' => $reasonId,
+            'eta' => $eta, // Save the ETA
             'provider_response_time' => now(),
         ]);
 
         // Broadcast the response to the customer using Laravel Echo/WebSockets
-         broadcast(new ProviderResponseEvent($response, $request_id, $reasonId));
-         return redirect()->route('provider.loading', ['request_id' => $request_id]);
+        broadcast(new ProviderResponseEvent($response, $request_id, $reasonId, $eta));
 
-
+        return redirect()->route('provider.loading', ['request_id' => $request_id]);
     }
+
 }

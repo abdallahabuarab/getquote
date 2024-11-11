@@ -129,16 +129,16 @@ class DestinationVehicleController extends Controller
         'token' => $token
     ]);
     session(['expiration_time' => $expires->timestamp]);
-
     // Send email notification to the provider
     Mail::send('emails.provider-notification', [
         'service_name' => $service->name,
         'secureLink' => $secureLink,
         'provider' => $provider,
-    ], function ($message) use ($provider) {
+    ], function ($message) use ($provider,$requestId) {
         $message->to($provider->provider_email)
-                ->subject('New Service Request');
+                ->subject('New Service Request/'.$requestId);
     });
+
 
     return redirect()->route('customer.loading', ['request_id' => $requestEntry->request_id]);
 }
