@@ -16,7 +16,3 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
-// Broadcast::channel('request.{requestId}', function ($user, $requestId) {
-//     // Optionally, add logic to determine if the user can listen to this event
-//     // Return true if you don't need user authentication
-//     return true;});

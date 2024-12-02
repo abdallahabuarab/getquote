@@ -78,7 +78,19 @@
 </head>
 
 <body>
+@if (Route::has('login'))
+    <div class="sm:fixed sm:top-0 sm:right-0 p-6 text-right z-10">
+        @auth
+            <a href="{{ url('/dashboard') }}" class="font-semibold text-white hover:text-gray-900 dark:text-white dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dashboard</a>
+        @else
+            <a href="{{ route('login') }}" class="font-semibold text-white hover:text-gray-900 dark:text-white dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log in</a>
 
+            {{-- @if (Route::has('register'))
+                <a href="{{ route('register') }}" class="ml-4 font-semibold text-white hover:text-gray-900 dark:text-white dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Register</a>
+            @endif --}}
+        @endauth
+    </div>
+@endif
     <div class="container mt-4">
         <p class="info-text">
             We provide roadside assistance and towing services for vehicles of all types. Whether you're stuck on the side of the road or need help with your vehicle at home, we're here to help!

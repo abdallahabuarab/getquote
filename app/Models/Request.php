@@ -65,7 +65,7 @@ class Request extends Model
 
     public function classModel()
     {
-        return $this->belongsTo(ClassModel::class, 'request_class');
+        return $this->belongsTo(ClassName::class, 'request_class');
     }
     public function locationType()
     {
@@ -80,5 +80,14 @@ class Request extends Model
     {
         return $this->hasOne(CaseModel::class);
     }
+    public function scopeSearch($query, $term)
+    {
+        return $query->where(function ($query) use ($term) {
+            $query->orWhere('request_zipcode', 'LIKE', "%{$term}%")
+                  ->orWhere('request_ip_country', 'LIKE', "%{$term}%")
+                  ->orWhere('request_ip_city', 'LIKE', "%{$term}%");
+        });
+    }
+
 
 }

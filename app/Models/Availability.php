@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Availability extends Model
 {
+    public $timestamps = false;
+
+    // protected $table = 'availability';
     use HasFactory;
     protected $fillable = [
         'provider_id', 'class_id', 'service_id', 'availability',
@@ -16,12 +19,13 @@ class Availability extends Model
 
     public function provider()
     {
-        return $this->belongsTo(Provider::class);
+        return $this->belongsTo(Provider::class, 'provider_id');
     }
+
 
     public function classModel()
     {
-        return $this->belongsTo(ClassModel::class, 'class_id');
+        return $this->belongsTo(ClassName::class, 'class_id');
     }
 
     public function service()

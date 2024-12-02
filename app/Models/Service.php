@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Service extends Model
 {
+    public $timestamps = false;
     protected $primaryKey = 'service_id';
     use HasFactory;
     protected $fillable = ['name'];

@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('zipcode_coverage', function (Blueprint $table) {
-            $table->unsignedInteger('zipcode');
-            $table->tinyInteger('rank');
-            $table->unsignedBigInteger('provider_id');
+            Schema::create('zipcode_coverage', function (Blueprint $table) {
+                $table->unsignedInteger('zipcode');
+                $table->tinyInteger('rank');
+                $table->unsignedBigInteger('provider_id');
 
-            $table->primary(['zipcode', 'rank']);
+                $table->primary(['provider_id', 'zipcode', 'rank']);
 
-            $table->foreign('zipcode')->references('zipcode')->on('zipcode_reference')->onDelete('cascade');
-            $table->foreign('provider_id')->references('provider_id')->on('providers')->onDelete('cascade');
-        });
+                $table->foreign('zipcode')->references('zipcode')->on('zipcode_reference')->onDelete('cascade');
+                $table->foreign('provider_id')->references('provider_id')->on('providers')->onDelete('cascade');
+            });
 
 
     }

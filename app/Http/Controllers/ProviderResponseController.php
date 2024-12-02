@@ -75,6 +75,13 @@ class ProviderResponseController extends Controller
         // Broadcast the response to the customer using Laravel Echo/WebSockets
         broadcast(new ProviderResponseEvent($response, $request_id, $reasonId, $eta));
 
+        // Log the data being broadcast
+        Log::info('Broadcasting ProviderResponseEvent', [
+            'response' => $response,
+            'request_id' => $request_id,
+            'reason_id' => $reasonId,
+            'eta' => $eta,
+        ]);
         return redirect()->route('provider.loading', ['request_id' => $request_id]);
     }
 

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('availability', function (Blueprint $table) {
+        Schema::create('availabilities', function (Blueprint $table) {
             $table->unsignedBigInteger('provider_id');
             $table->unsignedTinyInteger('class_id');
             $table->unsignedTinyInteger('service_id');

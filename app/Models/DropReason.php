@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class DropReason extends Model
 {
     use HasFactory;
+    public $timestamps = false;
+
     protected $fillable = ['reason'];
     protected $primaryKey = 'reason_id';
 

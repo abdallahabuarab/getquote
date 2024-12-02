@@ -13,6 +13,11 @@ class ZipcodeReference extends Model
     {
         return $this->hasMany(ZipcodeCoverage::class);
     }
+    public function providers()
+{
+    return $this->belongsToMany(Provider::class, 'zipcode_coverage', 'zipcode', 'provider_id')
+                ->withPivot('rank'); // Include rank as pivot data
+}
 
     public function requests()
     {
@@ -22,4 +27,8 @@ class ZipcodeReference extends Model
     {
         return $this->hasMany(Reject::class);
     }
+    public function scopeSearch($query, $term)
+{
+    return $query->where('zipcode', 'LIKE', "%{$term}%");
+}
 }

@@ -9,12 +9,22 @@ class Provider extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'provider_name', 'provider_address', 'provider_city', 'provider_state',
+
+       'user_id', 'provider_name', 'provider_address', 'provider_city', 'provider_state',
         'zipcode', 'provider_phone', 'provider_fax', 'provider_email', 'contact_name',
         'contact_phone', 'is_active', 'weekend_m', 'holiday_m', 'evening_m',
         'dispatch_method', 'request_processing', 'payment_distribution'
     ];
     protected $primaryKey = 'provider_id';
+ public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function zipCodes()
+    {
+        return $this->belongsToMany(ZipcodeReference::class, 'zipcode_coverage', 'provider_id', 'zipcode', 'provider_id', 'zipcode');
+    }
+
     public function zipcodeCoverages()
     {
         return $this->hasMany(ZipcodeCoverage::class);
@@ -27,14 +37,20 @@ class Provider extends Model
     {
         return $this->hasOne(ProviderCredential::class);
     }
+    public function availability()
+    {
+        return $this->hasMany(Availability::class, 'provider_id');
+    }
     public function availabilities()
-    {
-        return $this->hasMany(Availability::class);
-    }
-    public function schedules()
-    {
-        return $this->hasMany(ProviderSchedule::class);
-    }
+{
+    return $this->hasMany(Availability::class, 'provider_id');
+}
+public function schedules()
+{
+    return $this->hasMany(ProviderSchedule::class, 'provider_id'); // Explicit foreign key
+}
+
+
     public function dispatchMethod()
     {
         return $this->belongsTo(DispatchMethod::class, 'dispatch_method');
@@ -43,5 +59,11 @@ class Provider extends Model
     public function paymentDistribution()
     {
         return $this->belongsTo(PaymentDistribution::class, 'payment_distribution');
+    }
+public function scopeSearch($query, $term)
+    {
+        return $query->whereHas('user', function ($query) use ($term) {
+            $query->where('name', 'LIKE', "%{$term}%");
+        });
     }
 }

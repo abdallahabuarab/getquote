@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use App\Models\Reject;
 use App\Models\Service;
 use App\Models\Provider;
-use App\Models\ClassModel;
+use App\Models\ClassName;
 use App\Models\DropReason;
 use App\Models\LocationType;
 use Illuminate\Http\Request;
@@ -18,7 +18,7 @@ class RequestController extends Controller
 {
     public function create()
     {
-        $classes = ClassModel::all();
+        $classes = ClassName::all();
         $services = Service::all();
         $locationTypes = LocationType::all();
 
@@ -71,11 +71,11 @@ class RequestController extends Controller
         $dayOfWeek = now()->dayOfWeek+1;
 
         $provider = Provider::join('zipcode_coverage', 'providers.provider_id', '=', 'zipcode_coverage.provider_id')
-        ->join('availability', function ($join) use ($validatedData) {
-            $join->on('providers.provider_id', '=', 'availability.provider_id')
-                ->where('availability.service_id', $validatedData['service_id'])
-                ->where('availability.class_id', $validatedData['class_id'])
-                ->where('availability.availability', 'yes');
+        ->join('availabilities', function ($join) use ($validatedData) {
+            $join->on('providers.provider_id', '=', 'availabilities.provider_id')
+                ->where('availabilities.service_id', $validatedData['service_id'])
+                ->where('availabilities.class_id', $validatedData['class_id'])
+                ->where('availabilities.availability', 'yes');
         })
         ->join('provider_schedules', function ($join) use ($dayOfWeek, $currentMinutes) {
             $join->on('providers.provider_id', '=', 'provider_schedules.provider_id')
