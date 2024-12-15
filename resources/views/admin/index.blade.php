@@ -109,7 +109,7 @@
                         </div>
 
                         <h4 class="card-title mb-4">Latest Transactions</h4>
-
+{{--
                         <div class="table-responsive">
                             <table class="table table-centered mb-0 align-middle table-hover table-nowrap">
                                 <thead class="table-light">
@@ -230,7 +230,7 @@
                                 <!-- end -->
                                 </tbody><!-- end tbody -->
                             </table> <!-- end table -->
-                        </div>
+                        </div> --}}
                     </div><!-- end card -->
                 </div><!-- end card -->
             </div>
