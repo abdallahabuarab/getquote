@@ -22,7 +22,7 @@ class Provider extends Model
     }
     public function zipCodes()
     {
-        return $this->belongsToMany(ZipcodeReference::class, 'zipcode_coverage', 'provider_id', 'zipcode', 'provider_id', 'zipcode');
+        return $this->belongsToMany(ZipcodeReference::class, 'zipcode_coverage', 'provider_id', 'zipcode', 'provider_id', 'zipcode')->withPivot('rank');
     }
 
     public function zipcodeCoverages()

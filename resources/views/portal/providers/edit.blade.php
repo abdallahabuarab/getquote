@@ -146,7 +146,7 @@
                     </div>
 
                     <!-- Classes -->
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <label for="class_ids" class="col-sm-2 col-form-label">Classes</label>
                         <div class="col-sm-6">
                             <select name="class_ids[]" id="class_ids" class="form-select" multiple>
@@ -157,10 +157,10 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Services -->
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <label for="service_ids" class="col-sm-2 col-form-label">Services</label>
                         <div class="col-sm-6">
                             <select name="service_ids[]" id="service_ids" class="form-select" multiple>
@@ -171,10 +171,10 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Zip Codes -->
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <label for="zip_codes" class="col-sm-2 col-form-label">Zip Codes</label>
                         <div class="col-sm-6">
                             <select name="zip_codes[]" id="zip_codes" class="form-select" multiple>
@@ -197,7 +197,7 @@
                                 <option value="3" {{ $provider->zipCodes->first()->pivot->rank ?? '' == '3' ? 'selected' : '' }}>3</option>
                             </select>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Status -->
                     <div class="row mb-3">

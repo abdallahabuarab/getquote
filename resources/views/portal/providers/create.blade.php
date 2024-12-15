@@ -138,7 +138,7 @@
                             </div>
 
                             <!-- Classes and Services -->
-                            <div class="row mb-3">
+                            {{-- <div class="row mb-3">
                                 <label for="class_ids" class="col-sm-2 col-form-label">Classes</label>
                                 <div class="col-sm-6">
                                     <select id="class_ids" name="class_ids[]" class="form-select @error('class_ids') is-invalid @enderror" multiple>
@@ -152,10 +152,10 @@
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
 
 
-                            <div class="row mb-3">
+                            {{-- <div class="row mb-3">
                                 <label for="service_ids" class="col-sm-2 col-form-label">Services</label>
                                 <div class="col-sm-6">
                                     <select id="service_ids" name="service_ids[]" class="form-select @error('service_ids') is-invalid @enderror" multiple>
@@ -169,10 +169,10 @@
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
 
 
-                            <div class="row mb-3">
+                            {{-- <div class="row mb-3">
                                 <label for="availability" class="col-sm-2 col-form-label">Availability</label>
                                 <div class="col-sm-4">
                                     <select id="availability" name="availability" class="form-select @error('availability') is-invalid @enderror" required>
@@ -183,9 +183,9 @@
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
 
-                            <div class="row mb-3">
+                            {{-- <div class="row mb-3">
                                 <label for="service_price" class="col-sm-2 col-form-label">Service Price</label>
                                 <div class="col-sm-4">
                                     <input type="number" id="service_price" name="service_price" class="form-control @error('service_price') is-invalid @enderror" value="{{ old('service_price') }}" placeholder="Enter Price">
@@ -193,7 +193,7 @@
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="row mb-3">
                                 <label for="dispatch_method" class="col-sm-2 col-form-label">Dispatch Method</label>
@@ -213,7 +213,7 @@
                             </div>
 
                             <!-- Zip Codes -->
-                            <h5 class="mb-3 mt-4">Coverage</h5>
+                            {{-- <h5 class="mb-3 mt-4">Coverage</h5>
                             <div class="row mb-3">
                                 <label for="zip_codes" class="col-sm-2 col-form-label">Zip Codes</label>
                                 <div class="col-sm-6">
@@ -228,8 +228,8 @@
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
-                            </div>
-                            <div class="row mb-3">
+                            </div> --}}
+                            {{-- <div class="row mb-3">
                                 <label for="rank" class="col-sm-2 col-form-label">Rank</label>
                                 <div class="col-sm-4">
                                     <select id="rank" name="rank" class="form-select @error('rank') is-invalid @enderror" required>
@@ -242,7 +242,7 @@
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="row mb-3">
                                 <label for="payment_distribution" class="col-sm-2 col-form-label">Payment Distribution</label>
                                 <div class="col-sm-4">

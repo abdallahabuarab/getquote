@@ -109,6 +109,11 @@ Route::delete('/providers-panel/{provider}', [ProviderPanelController::class, 'd
 
     Route::get('/providers-details/{provider}', [ProviderPanelController::class, 'show'])->name('providerspa.show');
 
+    Route::patch('/{provider}/zip-codes', [ProviderPanelController::class, 'updateZipCodes'])->name('providerspa.updateZipCodes');
+    Route::patch('/{provider}/availabilities', [ProviderPanelController::class, 'updateAvailability'])->name('providerspa.updateAvailability');
+    Route::delete('/providers-panel/{provider}/zip-codes/{zipcode}', [ProviderPanelController::class, 'deleteZipCode'])->name('providerspa.deleteZipCode');
+    Route::delete('/providers-panel/{provider}/availabilities', [ProviderPanelController::class, 'deleteAvailability'])
+    ->name('providerspa.deleteAvailability');
 
     Route::get('/users-panel', [UserPanelController::class, 'index'])
     ->name('userspa.index');

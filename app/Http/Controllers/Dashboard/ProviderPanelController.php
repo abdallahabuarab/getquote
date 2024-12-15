@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Service;
 use App\Models\Weekday;
@@ -55,16 +56,16 @@ class ProviderPanelController extends Controller
         'status' => 'required|in:yes,no',
         'dispatch_method' => 'required|exists:dispatch_methods,dispath_method_id',
         'payment_distribution' => 'required|exists:payment_distributions,payment_distribution_id',
-        'class_ids' => 'required|array',
-        'class_ids.*' => 'exists:classes,class_id',
-        'service_ids' => 'required|array',
-        'service_ids.*' => 'exists:services,service_id',
-        'availability' => 'required|in:yes,no',
-        'service_price' => 'nullable|numeric|min:0',
+        // 'class_ids' => 'required|array',
+        // 'class_ids.*' => 'exists:classes,class_id',
+        // 'service_ids' => 'required|array',
+        // 'service_ids.*' => 'exists:services,service_id',
+        // 'availability' => 'required|in:yes,no',
+        // 'service_price' => 'nullable|numeric|min:0',
         'provider_zipcode'=>'exists:zipcode_reference,zipcode',
-        'zip_codes' => 'required|array',
-        'zip_codes.*' => 'exists:zipcode_reference,zipcode',
-        'rank' => 'required|integer|in:1,2,3',
+        // 'zip_codes' => 'required|array',
+        // 'zip_codes.*' => 'exists:zipcode_reference,zipcode',
+        // 'rank' => 'required|integer|in:1,2,3',
         'schedule' => 'required|array',
         'schedule.*.open_day' => 'required|in:yes,no',
         'schedule.*.start_time' => 'nullable|date_format:H:i',
@@ -96,24 +97,24 @@ class ProviderPanelController extends Controller
     ]);
 
     // Save provider availabilities (multiple classes and services)
-    foreach ($request->class_ids as $classId) {
-        foreach ($request->service_ids as $serviceId) {
-            $provider->availabilities()->create([
-                'class_id' => $classId,
-                'service_id' => $serviceId,
-                'availability' => $request->availability,
-                'service_price' => $request->service_price,
-            ]);
-        }
-    }
+    // foreach ($request->class_ids as $classId) {
+    //     foreach ($request->service_ids as $serviceId) {
+    //         $provider->availabilities()->create([
+    //             'class_id' => $classId,
+    //             'service_id' => $serviceId,
+    //             'availability' => $request->availability,
+    //             'service_price' => $request->service_price,
+    //         ]);
+    //     }
+    // }
 
     // Save zip codes with rank
-    $rank = $request->rank;
-    $zipCodes = $request->zip_codes;
+    // $rank = $request->rank;
+    // $zipCodes = $request->zip_codes;
 
-    foreach ($zipCodes as $zipcode) {
-        $provider->zipcodes()->attach($zipcode, ['rank' => $rank]);
-    }
+    // foreach ($zipCodes as $zipcode) {
+    //     $provider->zipcodes()->attach($zipcode, ['rank' => $rank]);
+    // }
     foreach ($request->schedule as $dayOfWeek => $schedule) {
         $startTime = $schedule['start_time'] ? (intval(explode(':', $schedule['start_time'])[0]) * 60 + intval(explode(':', $schedule['start_time'])[1])) : null;
         $endTime = $schedule['end_time'] ? (intval(explode(':', $schedule['end_time'])[0]) * 60 + intval(explode(':', $schedule['end_time'])[1])) : null;
@@ -136,26 +137,156 @@ class ProviderPanelController extends Controller
     public function show(Provider $provider)
 {
 
-    $provider->load('zipCodes', 'user', 'availabilities.service', 'availabilities.classModel','schedules');
+   $provider->load('zipCodes', 'availabilities.service', 'availabilities.classModel');
 
-    return view('portal.providers.show', compact('provider'));
+   $classNames = ClassName::all(); // List of all classes
+   $services = Service::all(); // List of all services
+
+   return view('portal.providers.show', compact('provider',  'classNames', 'services'));
 }
+public function updateZipCodes(Request $request, Provider $provider)
+{
+    $request->validate([
+        'zip_codes' => 'required|array',
+        'zip_codes.*.zipcode' => [
+            'required',
+            'exists:zipcode_reference,zipcode',
+            function ($attribute, $value, $fail) use ($request, $provider) {
+                $rank = $request->zip_codes[array_search($value, array_column($request->zip_codes, 'zipcode'))]['rank']?? 1;
+                $existing = DB::table('zipcode_coverage')
+                    ->where('zipcode', $value)
+                    ->where('rank', $rank)
+                    ->where('provider_id', '!=', $provider->provider_id)
+                    ->exists();
+                if ($existing) {
+                    $fail("The ZIP code $value is already assigned with rank $rank to another provider.");
+                }
+            },
+        ],
+        'zip_codes.*.rank' => 'required|integer|in:1,2,3',
+    ]);
+
+    foreach ($request->zip_codes as $zipCode) {
+
+        $provider->zipCodes()->syncWithoutDetaching([
+            $zipCode['zipcode'] => ['rank' => $zipCode['rank']],
+        ]);
+    }
+
+    return back()->with('success', 'ZIP codes added successfully.');
+}
+
+public function deleteZipCode(Provider $provider, $zipcode)
+{
+    $provider->zipCodes()->detach($zipcode);
+
+    return back()->with('success', 'ZIP code deleted successfully.');
+}
+
+
+
+public function updateAvailability(Request $request, Provider $provider)
+{
+    $request->validate([
+        'availabilities' => 'required|array',
+        'availabilities.*.class_id' => 'required|exists:classes,class_id',
+        'availabilities.*.service_id' => 'required|exists:services,service_id',
+        'availabilities.*.service_price' => 'nullable|numeric|min:0',
+        'availabilities.*.free_enroute_miles' => 'nullable|integer|min:0',
+        'availabilities.*.free_loaded_miles' => 'nullable|integer|min:0',
+        'availabilities.*.enroute_mile_price' => 'nullable|numeric|min:0',
+        'availabilities.*.loaded_mile_price' => 'nullable|numeric|min:0',
+        'availabilities.*.availability' => 'required|in:yes,no',
+    ]);
+
+    $existingCombinations = $provider->availabilities->map(function ($availability) {
+        return "{$availability->class_id}-{$availability->service_id}";
+    });
+
+    foreach ($request->availabilities as $availability) {
+        $newCombination = "{$availability['class_id']}-{$availability['service_id']}";
+
+        if ($existingCombinations->contains($newCombination)) {
+            return back()->withErrors("The combination of Class ID {$availability['class_id']} and Service ID {$availability['service_id']} already exists.");
+        }
+
+        $provider->availabilities()->updateOrCreate(
+            [
+                'class_id' => $availability['class_id'],
+                'service_id' => $availability['service_id'],
+            ],
+            [
+                'availability' => $availability['availability'],
+                'service_price' => $availability['service_price'] ?? null,
+                'free_enroute_miles' => $availability['free_enroute_miles'] ?? null,
+                'free_loaded_miles' => $availability['free_loaded_miles'] ?? null,
+                'enroute_mile_price' => $availability['enroute_mile_price'] ?? null,
+                'loaded_mile_price' => $availability['loaded_mile_price'] ?? null,
+            ]
+        );
+    }
+
+    return back()->with('success', 'Availabilities updated successfully.');
+}
+
+
+
+// public function updateAvailability(Request $request, Provider $provider)
+// {
+//     $request->validate([
+//         'availabilities' => 'required|array',
+//         'availabilities.*.class_id' => 'required|exists:classes,class_id',
+//         'availabilities.*.service_id' => 'required|exists:services,service_id',
+//         'availabilities.*.service_price' => 'nullable|numeric|min:0',
+//     ]);
+
+//     $existingCombinations = $provider->availabilities->map(function ($availability) {
+//         return "{$availability->class_id}-{$availability->service_id}";
+//     });
+
+//     foreach ($request->availabilities as $availability) {
+//         $newCombination = "{$availability['class_id']}-{$availability['service_id']}";
+
+//         if ($existingCombinations->contains($newCombination)) {
+//             return back()->withErrors("The combination of Class ID {$availability['class_id']} and Service ID {$availability['service_id']} already exists for this provider.");
+//         }
+
+//         $provider->availabilities()->create([
+//             'class_id' => $availability['class_id'],
+//             'service_id' => $availability['service_id'],
+//             'availability' => 'yes',
+//             'service_price' => $availability['service_price'] ?? null,
+//         ]);
+
+//     }
+
+//     return back()->with('success', 'Availabilities updated successfully.');
+// }
+public function deleteAvailability(Request $request, Provider $provider)
+{
+    $provider->availabilities()
+        ->where('class_id', $request->class_id)
+        ->where('service_id', $request->service_id)
+        ->delete();
+
+    return back()->with('success', 'Availability deleted successfully.');
+}
+
+
+
 
 public function edit(Provider $provider)
 {
     $provider->load('zipCodes', 'availabilities.service', 'availabilities.classModel', 'schedules.weekday');
-    $zipCodes = ZipcodeReference::all();
-    $classNames = ClassName::all();
-    $services = Service::all();
+    // $zipCodes = ZipcodeReference::all();
+    // $classNames = ClassName::all();
+    // $services = Service::all();
     $dispatchMethods = DispatchMethod::all();
     $paymentDistributions = PaymentDistribution::all();
     $weekdays = Weekday::all();
 
     return view('portal.providers.edit', compact(
         'provider',
-        'zipCodes',
-        'classNames',
-        'services',
         'dispatchMethods',
         'paymentDistributions',
         'weekdays'
@@ -177,10 +308,10 @@ public function update(Request $request, Provider $provider)
         'status' => 'required|in:yes,no',
         'dispatch_method' => 'required|exists:dispatch_methods,dispath_method_id',
         'payment_distribution' => 'required|exists:payment_distributions,payment_distribution_id',
-        'class_ids' => 'required|array',
-        'service_ids' => 'required|array',
-        'zip_codes' => 'required|array',
-        'rank' => 'required|integer|in:1,2,3',
+        // 'class_ids' => 'required|array',
+        // 'service_ids' => 'required|array',
+        // 'zip_codes' => 'required|array',
+        // 'rank' => 'required|integer|in:1,2,3',
         'schedule' => 'required|array',
         'schedule.*.open_day' => 'required|in:yes,no',
         'schedule.*.start_time' => 'nullable|date_format:H:i',
@@ -210,23 +341,23 @@ public function update(Request $request, Provider $provider)
         'payment_distribution' => $request->payment_distribution,
     ]);
 
-    $provider->availabilities()->delete();
-    foreach ($request->class_ids as $classId) {
-        foreach ($request->service_ids as $serviceId) {
-            $provider->availabilities()->create([
-                'class_id' => $classId,
-                'service_id' => $serviceId,
-                'availability' => 'yes',
-                'service_price' => $request->service_price ?? null,
-            ]);
-        }
-    }
+    // $provider->availabilities()->delete();
+    // foreach ($request->class_ids as $classId) {
+    //     foreach ($request->service_ids as $serviceId) {
+    //         $provider->availabilities()->create([
+    //             'class_id' => $classId,
+    //             'service_id' => $serviceId,
+    //             'availability' => 'yes',
+    //             'service_price' => $request->service_price ?? null,
+    //         ]);
+    //     }
+    // }
 
     // Update zip codes
-    $provider->zipCodes()->detach();
-    foreach ($request->zip_codes as $zipcode) {
-        $provider->zipCodes()->attach($zipcode, ['rank' => $request->rank]);
-    }
+    // $provider->zipCodes()->detach();
+    // foreach ($request->zip_codes as $zipcode) {
+    //     $provider->zipCodes()->attach($zipcode, ['rank' => $request->rank]);
+    // }
 
 
     $provider->schedules()->delete(); // Clear existing schedules

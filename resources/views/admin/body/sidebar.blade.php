@@ -5,7 +5,7 @@
                 <li class="menu-title">Menu</li>
 
                 <li>
-                    <a href="{{route('userspa.index')}}" class="waves-effect">
+                    <a href="" class="waves-effect">
                         <i class="fas fa-chart-line"></i>
                         <span>Dashboard</span>
                     </a>
