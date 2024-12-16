@@ -4,6 +4,238 @@
 <div class="page-content">
     <div class="container-fluid">
         @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <!-- Provider Information -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">Provider: {{ $provider->provider_name }}</h4>
+                        <table class="table table-striped table-bordered">
+                            <tbody>
+                                <tr><th>Email</th><td>{{ $provider->provider_email }}</td></tr>
+                                <tr><th>Contact Phone</th><td>{{ $provider->provider_phone }}</td></tr>
+                                <tr><th>Address</th><td>{{ $provider->provider_address }}</td></tr>
+                                <tr><th>City</th><td>{{ $provider->provider_city }}</td></tr>
+                                <tr><th>State</th><td>{{ $provider->provider_state }}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ZIP Code Coverage -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">ZIP Code Coverage</h4>
+
+                        <!-- Search ZIP Codes -->
+                        <div class="mb-3">
+                            <input type="text" id="zipCodeSearch" class="form-control" placeholder="Search ZIP Codes...">
+                        </div>
+
+                        <table class="table table-striped table-bordered" id="zipCodeTable">
+                            <thead>
+                                <tr>
+                                    <th>ZIP Code</th>
+                                    <th>Rank</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($provider->zipCodes as $zipCode)
+                                    <tr>
+                                        <td>{{ $zipCode->zipcode }}</td>
+                                        <td>{{ $zipCode->pivot->rank }}</td>
+                                        <td>
+                                            <form action="{{ route('providerspa.deleteZipCode', [$provider->provider_id, $zipCode->zipcode]) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <h5 class="mt-4">Add or Edit ZIP Codes and Ranks</h5>
+                        <form action="{{ route('providerspa.updateZipCodes', $provider->provider_id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+
+                            <div id="zipcode-fields">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <input type="text" name="zip_codes[0][zipcode]" class="form-control" placeholder="Enter ZIP code">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select name="zip_codes[0][rank]" class="form-control">
+                                            <option value="" disabled selected>Select Rank</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary mt-3">Save ZIP Codes</button>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Availability Management -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">Manage Availability</h4>
+                        <h5>Current Availabilities</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Class</th>
+                                    <th>Service</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($provider->availabilities as $availability)
+                                    <tr>
+                                        <td>{{ $availability->classModel->name }}</td>
+                                        <td>{{ $availability->service->name }}</td>
+                                        <td>{{ $availability->service_price ?? 'N/A' }}</td>
+                                        <td>
+                                            <form action="{{ route('providerspa.deleteAvailability', $provider->provider_id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <input type="hidden" name="class_id" value="{{ $availability->class_id }}">
+                                                <input type="hidden" name="service_id" value="{{ $availability->service_id }}">
+                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        <form action="{{ route('providerspa.updateAvailability', $provider->provider_id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <div id="availability-fields">
+                                <div class="row mb-3 availability-row">
+                                    <div class="col-md-3">
+                                        <label>Class</label>
+                                        <select name="availabilities[0][class_id]" class="form-control">
+                                            <option value="" disabled selected>Select Class</option>
+                                            @foreach ($classNames as $className)
+                                                <option value="{{ $className->class_id }}">{{ $className->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Service</label>
+                                        <select name="availabilities[0][service_id]" class="form-control service-select">
+                                            <option value="" disabled selected>Select Service</option>
+                                            @foreach ($services as $service)
+                                                <option value="{{ $service->service_id }}">{{ $service->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Service Price</label>
+                                        <input type="number" step="0.01" name="availabilities[0][service_price]" class="form-control" placeholder="Enter Price">
+                                    </div>
+                                    <div class="col-md-2 conditional-input d-none">
+                                        <label>Free Loaded Miles</label>
+                                        <input type="number" name="availabilities[0][free_loaded_miles]" class="form-control" placeholder="Enter Miles">
+                                    </div>
+                                    <div class="col-md-2 conditional-input d-none">
+                                        <label>Loaded Mile Price</label>
+                                        <input type="number" step="0.01" name="availabilities[0][loaded_mile_price]" class="form-control" placeholder="Enter Price">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label>Availability</label>
+                                        <select name="availabilities[0][availability]" class="form-control">
+                                            <option value="yes">Yes</option>
+                                            <option value="no">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 ">
+                                        <label>Free Enroute Miles</label>
+                                        <input type="number" name="availabilities[0][free_enroute_miles]" class="form-control" placeholder="Enter Miles">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Enroute Mile Price</label>
+                                        <input type="number" step="0.01" name="availabilities[0][enroute_mile_price]" class="form-control" placeholder="Enter Price">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">Save Availabilities</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // ZIP Code Search Functionality
+    document.getElementById('zipCodeSearch').addEventListener('input', function () {
+        let filter = this.value.toLowerCase();
+        document.querySelectorAll('#zipCodeTable tbody tr').forEach(row => {
+            let zipCode = row.cells[0].textContent.toLowerCase();
+            row.style.display = zipCode.includes(filter) ? '' : 'none';
+        });
+    });
+
+    // Show/Hide Conditional Inputs for Towing
+    document.querySelectorAll('.service-select').forEach(select => {
+        select.addEventListener('change', function () {
+            let selectedService = this.options[this.selectedIndex].text.toLowerCase();
+            let conditionalInputs = this.closest('.availability-row').querySelectorAll('.conditional-input');
+            if (selectedService === 'tow') {
+                conditionalInputs.forEach(input => input.classList.remove('d-none'));
+            } else {
+                conditionalInputs.forEach(input => input.classList.add('d-none'));
+            }
+        });
+    });
+</script>
+@endsection
+
+
+
+
+
+{{-- @extends('admin.admin_master')
+
+@section('admin')
+<div class="page-content">
+    <div class="container-fluid">
+        @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
@@ -67,7 +299,7 @@
                             <input type="text" id="zipCodeSearch" class="form-control" placeholder="Search ZIP Codes...">
                         </div> --}}
 
-                        <table class="table table-bordered" id="zipCodeTable">
+                        {{-- <table class="table table-bordered" id="zipCodeTable">
                             <thead>
                                 <tr>
                                     <th>ZIP Code</th>
@@ -225,36 +457,36 @@
 
     </div>
 </div>
-@endsection
+@endsection --}}
 
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('zipCodeSearch'); // Search input element
-        const tableRows = document.querySelectorAll('#zipCodeTable tbody tr'); // Table rows
+{{-- @section('scripts') --}}
+{{-- <script>
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     const searchInput = document.getElementById('zipCodeSearch'); // Search input element
+    //     const tableRows = document.querySelectorAll('#zipCodeTable tbody tr'); // Table rows
 
-        searchInput.addEventListener('input', function () {
-            const searchTerm = searchInput.value.trim(); // Input value
-            const isNumeric = /^\d*$/.test(searchTerm); // Check if input is numbers only
+    //     searchInput.addEventListener('input', function () {
+    //         const searchTerm = searchInput.value.trim(); // Input value
+    //         const isNumeric = /^\d*$/.test(searchTerm); // Check if input is numbers only
 
-            if (!isNumeric) {
-                alert('Please enter numbers only for ZIP Code search.');
-                searchInput.value = ''; // Reset input if invalid
-                return;
-            }
+    //         if (!isNumeric) {
+    //             alert('Please enter numbers only for ZIP Code search.');
+    //             searchInput.value = ''; // Reset input if invalid
+    //             return;
+    //         }
 
-            tableRows.forEach(row => {
-                const zipCode = row.querySelector('td:first-child').textContent.trim();
+    //         tableRows.forEach(row => {
+    //             const zipCode = row.querySelector('td:first-child').textContent.trim();
 
-                // Check if the ZIP Code matches the search term
-                if (zipCode.includes(searchTerm) || searchTerm === '') {
-                    row.style.display = ''; // Show row
-                } else {
-                    row.style.display = 'none'; // Hide row
-                }
-            });
-        });
-    });
+    //             // Check if the ZIP Code matches the search term
+    //             if (zipCode.includes(searchTerm) || searchTerm === '') {
+    //                 row.style.display = ''; // Show row
+    //             } else {
+    //                 row.style.display = 'none'; // Hide row
+    //             }
+    //         });
+    //     });
+    // });
 </script>
 
 <script>
@@ -263,52 +495,52 @@
 
 
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const availabilityFieldsContainer = document.getElementById('availability-fields');
-        const addAvailabilityButton = document.querySelector('.add-availability');
+    // document.addEventListener('DOMContentLoaded', () => {
+    //     const availabilityFieldsContainer = document.getElementById('availability-fields');
+    //     const addAvailabilityButton = document.querySelector('.add-availability');
 
-        // Add new Availability row
-        addAvailabilityButton.addEventListener('click', () => {
-            const index = availabilityFieldsContainer.childElementCount;
-            const newField = `
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label for="availabilities[${index}][class_id]">Class</label>
-                        <select name="availabilities[${index}][class_id]" class="form-control">
-                            <option value="" disabled selected>Select Class</option>
-                            @foreach ($classNames as $className)
-                                <option value="{{ $className->id }}">{{ $className->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="availabilities[${index}][service_id]">Service</label>
-                        <select name="availabilities[${index}][service_id]" class="form-control">
-                            <option value="" disabled selected>Select Service</option>
-                            @foreach ($services as $service)
-                                <option value="{{ $service->id }}">{{ $service->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="availabilities[${index}][service_price]">Price</label>
-                        <input type="number" name="availabilities[${index}][service_price]" class="form-control" placeholder="Enter Price">
-                    </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-danger mt-4 remove-availability">Remove</button>
-                    </div>
-                </div>
-            `;
-            availabilityFieldsContainer.insertAdjacentHTML('beforeend', newField);
-        });
+    //     // Add new Availability row
+    //     addAvailabilityButton.addEventListener('click', () => {
+    //         const index = availabilityFieldsContainer.childElementCount;
+    //         const newField = `
+    //             <div class="row mb-3">
+    //                 <div class="col-md-4">
+    //                     <label for="availabilities[${index}][class_id]">Class</label>
+    //                     <select name="availabilities[${index}][class_id]" class="form-control">
+    //                         <option value="" disabled selected>Select Class</option>
+    //                         @foreach ($classNames as $className)
+    //                             <option value="{{ $className->id }}">{{ $className->name }}</option>
+    //                         @endforeach
+    //                     </select>
+    //                 </div>
+    //                 <div class="col-md-4">
+    //                     <label for="availabilities[${index}][service_id]">Service</label>
+    //                     <select name="availabilities[${index}][service_id]" class="form-control">
+    //                         <option value="" disabled selected>Select Service</option>
+    //                         @foreach ($services as $service)
+    //                             <option value="{{ $service->id }}">{{ $service->name }}</option>
+    //                         @endforeach
+    //                     </select>
+    //                 </div>
+    //                 <div class="col-md-3">
+    //                     <label for="availabilities[${index}][service_price]">Price</label>
+    //                     <input type="number" name="availabilities[${index}][service_price]" class="form-control" placeholder="Enter Price">
+    //                 </div>
+    //                 <div class="col-md-1">
+    //                     <button type="button" class="btn btn-danger mt-4 remove-availability">Remove</button>
+    //                 </div>
+    //             </div>
+    //         `;
+    //         availabilityFieldsContainer.insertAdjacentHTML('beforeend', newField);
+    //     });
 
-        // Remove Availability row
-        availabilityFieldsContainer.addEventListener('click', (event) => {
-            if (event.target.classList.contains('remove-availability')) {
-                event.target.closest('.row').remove();
-            }
-        });
-    });
+    //     // Remove Availability row
+    //     availabilityFieldsContainer.addEventListener('click', (event) => {
+    //         if (event.target.classList.contains('remove-availability')) {
+    //             event.target.closest('.row').remove();
+    //         }
+    //     });
+    // });
 
 
 
@@ -341,7 +573,7 @@
 
 
 </script>
-@endsection
+@endsection --}}
 
 
 

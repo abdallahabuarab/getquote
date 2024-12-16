@@ -176,6 +176,7 @@ public function updateZipCodes(Request $request, Provider $provider)
     return back()->with('success', 'ZIP codes added successfully.');
 }
 
+
 public function deleteZipCode(Provider $provider, $zipcode)
 {
     $provider->zipCodes()->detach($zipcode);

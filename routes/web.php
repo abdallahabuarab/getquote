@@ -115,6 +115,8 @@ Route::delete('/providers-panel/{provider}', [ProviderPanelController::class, 'd
     Route::delete('/providers-panel/{provider}/availabilities', [ProviderPanelController::class, 'deleteAvailability'])
     ->name('providerspa.deleteAvailability');
 
+
+
     Route::get('/users-panel', [UserPanelController::class, 'index'])
     ->name('userspa.index');
 Route::get('/users-panel/create', [UserPanelController::class, 'create'])
