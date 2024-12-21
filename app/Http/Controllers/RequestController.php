@@ -68,7 +68,7 @@ class RequestController extends Controller
         // Check if the ZIP code is covered and providers exist
 
         $currentMinutes = now()->hour * 60 + now()->minute;
-        $dayOfWeek = now()->dayOfWeek+1;
+        $dayOfWeek = now()->dayOfWeek;
 
         $provider = Provider::join('zipcode_coverage', 'providers.provider_id', '=', 'zipcode_coverage.provider_id')
         ->join('availabilities', function ($join) use ($validatedData) {
