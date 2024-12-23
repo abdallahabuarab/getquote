@@ -10,10 +10,17 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
+
  public function provider()
     {
         return $this->hasOne(Provider::class);
     }
+
+    public function isProvider()
+{
+    return $this->provider !== null;
+}
+
     public function scopeSearch($query, $term)
 {
     return $query->where('name', 'LIKE', "%{$term}%");

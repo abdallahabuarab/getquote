@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Service;
 use App\Models\Weekday;
 use App\Models\ZipCode;
 use App\Models\Provider;
 use App\Models\ClassName;
+use App\Models\Availability;
 use Illuminate\Http\Request;
 use App\Models\DispatchMethod;
 use App\Models\ZipcodeReference;
+use Illuminate\Support\Facades\DB;
 use App\Models\PaymentDistribution;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -230,6 +231,31 @@ public function updateAvailability(Request $request, Provider $provider)
     return back()->with('success', 'Availabilities updated successfully.');
 }
 
+public function editAvailability(Request $request, $provider_id, $class_id, $service_id)
+{
+    $request->validate([
+        'availability' => 'required|in:yes,no',
+        'service_price' => 'nullable|numeric|min:0',
+        'enroute_mile_price' => 'nullable|numeric|min:0',
+        'free_enroute_miles' => 'nullable|integer|min:0',
+        'loaded_mile_price' => 'nullable|numeric|min:0',
+        'free_loaded_miles' => 'nullable|integer|min:0',
+    ]);
+
+    Availability::where('provider_id', $provider_id)
+        ->where('class_id', $class_id)
+        ->where('service_id', $service_id)
+        ->update([
+            'availability' => $request->availability,
+            'service_price' => $request->service_price,
+            'enroute_mile_price' => $request->enroute_mile_price,
+            'free_enroute_miles' => $request->free_enroute_miles,
+            'loaded_mile_price' => $request->loaded_mile_price,
+            'free_loaded_miles' => $request->free_loaded_miles,
+        ]);
+
+    return redirect()->back()->with('success', 'Availability updated successfully!');
+}
 
 
 // public function updateAvailability(Request $request, Provider $provider)

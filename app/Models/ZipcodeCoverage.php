@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ZipcodeCoverage extends Model
 {
+    protected $table = 'zipcode_coverage';
+
     use HasFactory;
     protected $fillable = ['zipcode', 'rank', 'provider_id'];
 

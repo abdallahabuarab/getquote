@@ -15,8 +15,10 @@ use App\Http\Controllers\Dashboard\ZipcodeController;
 use App\Http\Controllers\DestinationVehicleController;
 use App\Http\Controllers\Dashboard\UserPanelController;
 use App\Http\Controllers\Dashboard\OrderPanelController;
+use App\Http\Controllers\Dashboard\AvailabilityController;
 use App\Http\Controllers\Dashboard\RequestPanelController;
 use App\Http\Controllers\Dashboard\ProviderPanelController;
+use App\Http\Controllers\Dashboard\ZipcodeCoverageController;
 
 
 /*
@@ -80,12 +82,19 @@ Route::post('/update/password', 'updatePassword')->name('update.password');
 
 });
 
+Route::middleware(['auth','role','provider'])->group(function () {
+
+Route::get('/availability', [AvailabilityController::class, 'index'])->name('availabilities.index');
+Route::patch('/availabilities-details/{provider_id}/{class_id}/{service_id}', [AvailabilityController::class, 'updateAvailability'])->name('availabilities.updateAvailability');
 
 
-Route::middleware(['auth','role'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+Route::get('/zipcode-coverage', [ZipcodeCoverageController::class, 'index'])->name('zipcode.coverage.index');
+
+});
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit')->middleware('auth');
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update')->middleware('auth');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy')->middleware('auth');
+Route::middleware(['auth','role','user'])->group(function () {
     Route::get('/zipcodes', [ZipcodeController::class, 'index'])
     ->name('zipcodes.index');
     Route::get('/services', [ServiceController::class, 'index'])
@@ -114,6 +123,10 @@ Route::delete('/providers-panel/{provider}', [ProviderPanelController::class, 'd
     Route::delete('/providers-panel/{provider}/zip-codes/{zipcode}', [ProviderPanelController::class, 'deleteZipCode'])->name('providerspa.deleteZipCode');
     Route::delete('/providers-panel/{provider}/availabilities', [ProviderPanelController::class, 'deleteAvailability'])
     ->name('providerspa.deleteAvailability');
+
+    Route::patch('/availabilities/{provider_id}/{class_id}/{service_id}', [ProviderPanelController::class, 'editAvailability'])
+    ->name('availabilities.editAvailability');
+
 
 
 

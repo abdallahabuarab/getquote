@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Availability extends Model
 {
     public $timestamps = false;
+    public $incrementing = false;
+    protected $primaryKey = null;
 
     // protected $table = 'availability';
     use HasFactory;

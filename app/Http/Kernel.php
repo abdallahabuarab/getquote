@@ -72,6 +72,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'redirect.home' => EnsureCustomerIsRedirected::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'provider' => \App\Http\Middleware\ProviderMiddleware::class,
+        'user' => \App\Http\Middleware\UserMiddleware::class,
 
 
     ];

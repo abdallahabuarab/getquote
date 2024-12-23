@@ -5,7 +5,7 @@
                 <li class="menu-title">Menu</li>
 
                 <li>
-                    <a href="" class="waves-effect">
+                    <a href="{{route('dashboard')}}" class="waves-effect">
                         <i class="fas fa-chart-line"></i>
                         <span>Dashboard</span>
                     </a>
@@ -27,13 +27,29 @@
                             </ul>
 
                 </li>
-                @endif
                 <li>
                     <a href="{{route('zipcodes.index')}}" class="waves-effect">
                         <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
                         <span>ZipCodes</span>
                     </a>
+                    <li>
+                    @endif
+                    @if(session('role') == 'provider')
                 <li>
+                    <a href="{{ route('zipcode.coverage.index') }}" class="waves-effect">
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                        <span>ZIP Code Coverage</span>
+                </a>
+                <li>
+                <li>
+                    <a href="{{route('availabilities.index')}}" class="waves-effect">
+                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                        <span>Availabilities</span>
+                    </a>
+                <li>
+                    @endif
+                    @if(session('role') !== 'provider')
+
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="fas fa-list-alt"></i>
@@ -49,7 +65,6 @@
 
 
                 </li>
-                @if(session('role') !== 'provider')
                 <li>
                     <a href="{{route('rejects.index')}}" class=" waves-effect">
                         <i class="fa fa-cogs" aria-hidden="true"></i>
