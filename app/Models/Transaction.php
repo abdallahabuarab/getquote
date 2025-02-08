@@ -11,7 +11,6 @@ class Transaction extends Model
     protected $fillable = [
         'payment_id', 'payment_amount', 'payment_method', 'payment_status',
         'stripe_charge_id', 'currency', 'transaction_confirmation',
-        'transaction_created_at', 'transaction_updated_at'
     ];
 
     public function payment()

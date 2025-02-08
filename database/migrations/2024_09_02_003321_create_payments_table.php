@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->unsignedBigInteger('payment_id')->primary(); // Primary key
+            $table->id('payment_id');
             $table->unsignedBigInteger('request_id'); // Foreign key to `requests`
             $table->decimal('request_total', 8, 2);
             $table->string('payment_method', 10);
             $table->string('brand', 20);
             $table->enum('payment_status', ['pending', 'completed', 'failed']);
             $table->unsignedSmallInteger('payment_account_last4');
-            $table->string('stripe_payment_method_id', 20)->nullable();
+            $table->string('stripe_payment_method_id', 100)->nullable();
             $table->string('billing_address', 30)->nullable();
             $table->tinyInteger('method_exp_month')->unsigned()->nullable();
             $table->tinyInteger('method_exp_year')->unsigned()->nullable();

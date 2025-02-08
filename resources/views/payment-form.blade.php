@@ -1,6 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Secure Checkout</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<style>
+    .StripeElement {
+        background-color: white;
+        height: 45px;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 16px;
+        width: 100%;
+    }
+
+    .StripeElement--focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .StripeElement--invalid {
+        border-color: #dc3545;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        height: 50px;
+        font-size: 18px;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow p-4">
+                    <h3 class="text-center mb-4">Secure Payment</h3>
+                    <p class="text-center">Total Amount: <strong>${{ number_format($finalPrice, 2) }}</strong></p>
+
+                    <form id="payment-form" action="{{ route('payment.process') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        <input type="hidden" name="final_price" value="{{ $finalPrice }}">
+
+                        <div class="mb-3">
+                            <label for="billing_address" class="form-label">Billing Address</label>
+                            <input type="text" class="form-control" name="billing_address" placeholder="Enter your address" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="card-element" class="form-label">Credit or Debit Card</label>
+                            <div id="card-element" class="StripeElement"></div> <!-- Styled properly -->
+                            <div id="card-errors" class="text-danger mt-2" role="alert"></div>
+                        </div>
+
+
+                        <button id="submit-button" class="btn btn-primary w-100">Pay ${{ number_format($finalPrice, 2) }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let stripePublicKey = "{{ config('services.stripe.public') }}";
+
+            if (!stripePublicKey || stripePublicKey.trim() === "") {
+                console.error("Stripe public key is missing!");
+                return;
+            }
+
+            console.log("Using Stripe Public Key:", stripePublicKey);
+
+            const stripe = Stripe(stripePublicKey);
+            const elements = stripe.elements();
+
+            const style = {
+                base: {
+                    fontSize: "16px",
+                    color: "#495057",
+                    fontFamily: "Arial, sans-serif",
+                    "::placeholder": { color: "#6c757d" },
+                },
+                invalid: { color: "#dc3545" },
+            };
+
+            const card = elements.create("card", { style: style });
+            card.mount("#card-element");
+
+            card.on("change", function (event) {
+                let errorDisplay = document.getElementById("card-errors");
+                errorDisplay.textContent = event.error ? event.error.message : "";
+            });
+
+            document.getElementById("payment-form").addEventListener("submit", function (event) {
+                event.preventDefault();
+                stripe.createPaymentMethod({
+                    type: "card",
+                    card: card,
+                }).then(function (result) {
+                    if (result.error) {
+                        document.getElementById("card-errors").textContent = result.error.message;
+                    } else {
+                        let form = document.getElementById("payment-form");
+                        let hiddenInput = document.createElement("input");
+                        hiddenInput.setAttribute("type", "hidden");
+                        hiddenInput.setAttribute("name", "payment_method_id");
+                        hiddenInput.setAttribute("value", result.paymentMethod.id);
+                        form.appendChild(hiddenInput);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+
+</body>
+</html>
+
+
+
+{{-- <!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
@@ -173,4 +309,4 @@
     </form>
   </div>
 </body>
-</html>
+</html> --}}

@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\Vehicle;
 use App\Models\Provider;
 use App\Models\Destination;
-use App\Models\Customer;  // Import the Customer model to get the customer's name
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ZipcodeReference;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
-use App\Models\Service;  // Ensure the Service model is imported
 use App\Models\Request as RequestModel;
+use App\Models\Service;  // Ensure the Service model is imported
+use App\Models\Customer;  // Import the Customer model to get the customer's name
 
 class DestinationVehicleController extends Controller
 {
@@ -80,15 +81,15 @@ class DestinationVehicleController extends Controller
         $validatedDestinationData['destination_zipcode'] = preg_replace('/\D/', '', $validatedDestinationData['destination_zipcode']);
 
         // Validate the destination address with Google Geocoding API
-        // $validDestination = $this->validateDestinationLocation(
-        //     $validatedDestinationData['destination_zipcode'],
-        //     $validatedDestinationData['destination_locality'],
-        //     $validatedDestinationData['destination_administrative_area_level_1']
-        // );
+        $locationValidation  = $this->validateDestinationLocation(
+            $validatedDestinationData['destination_zipcode'],
+            $validatedDestinationData['destination_locality'],
+            $validatedDestinationData['destination_administrative_area_level_1']
+        );
 
-        // if (!$validDestination) {
-        //     return redirect()->back()->withErrors(['destination_zipcode' => 'Invalid destination location: Please check the ZIP code, city, or state.'])->withInput();
-        // }
+        if (!$locationValidation) {
+            return redirect()->back()->withErrors(['destination_zipcode' => 'Invalid destination location: Please check the ZIP code, city, or state.'])->withInput();
+        }
 
         // Insert destination information
         Destination::create([
@@ -99,8 +100,8 @@ class DestinationVehicleController extends Controller
             'destination_locality' => $validatedDestinationData['destination_locality'] ?? 'N/A',
             'destination_administrative_area_level_1' => strtoupper($validatedDestinationData['destination_administrative_area_level_1'] ?? 'N'),
             'destination_zipcode' => $validatedDestinationData['destination_zipcode'],
-            'destination_longitude' => 0.0, // You can set longitude/latitude from the Geocoding API if needed
-            'destination_latitude' => 0.0,
+            'destination_longitude' => $locationValidation['longitude'], // Save extracted longitude
+            'destination_latitude' => $locationValidation['latitude'], // Save extracted latitude
             'destination_address_source' => 'Manual',
             'destination_location_type_id' => $validatedDestinationData['destination_location_type_id'],
             'destination_name' => $validatedDestinationData['destination_name'] ?? 'N/A',
@@ -140,7 +141,7 @@ class DestinationVehicleController extends Controller
     });
 
 
-    return redirect()->route('customer.loading', ['request_id' => $requestEntry->request_id]);
+    return redirect()->route('customer.loading', ['request_id' => $requestEntry->request_id,'provider_id'=>$provider]);
 }
 /**
  * Validate the destination location using the Google Geocoding API.
@@ -150,28 +151,41 @@ class DestinationVehicleController extends Controller
  * @param string $state
  * @return bool
  */
-private function validateDestinationLocation($zipcode, $city, $state)
+
+
+ private function validateDestinationLocation($zipcode, $city, $state)
 {
-    $googleApiKey = env('GOOGLE_MAPS_API_KEY');
+    $googleApiKey = 'AIzaSyDsk5RExl2Xr7w2BayGTYdsePr2v6WBjmo'; // Ensure this is set in your .env file
     $address = urlencode(trim($zipcode) . ' ' . trim($city) . ' ' . trim($state));
 
     $url = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key={$googleApiKey}";
 
+    // Fetch the API response
     $response = file_get_contents($url);
     $json = json_decode($response, true);
 
+    // Log the response for debugging
+    Log::info('Google API Response:', $json);
+
     if ($json['status'] === 'OK' && isset($json['results'][0])) {
         $result = $json['results'][0];
+
+        // Extract latitude & longitude
+        $latitude = $result['geometry']['location']['lat'];
+        $longitude = $result['geometry']['location']['lng'];
+
         $foundZipCode = '';
         $foundCity = '';
         $foundState = '';
 
-        // Extract relevant address components
+        // Extract address components
         foreach ($result['address_components'] as $component) {
             if (in_array('postal_code', $component['types'])) {
                 $foundZipCode = $component['long_name'];
             }
             if (in_array('locality', $component['types'])) {
+                $foundCity = $component['long_name'];
+            } elseif (in_array('sublocality', $component['types'])) {
                 $foundCity = $component['long_name'];
             }
             if (in_array('administrative_area_level_1', $component['types'])) {
@@ -179,17 +193,102 @@ private function validateDestinationLocation($zipcode, $city, $state)
             }
         }
 
-        // Ensure the destination ZIP code, city, and state match
-        if (strcasecmp($foundZipCode, $zipcode) === 0 && strcasecmp($foundCity, $city) === 0 && strcasecmp($foundState, $state) === 0) {
-            return true;
+        // Log extracted components for debugging
+        Log::info('Extracted Zip Code:', [$foundZipCode]);
+        Log::info('Extracted City:', [$foundCity]);
+        Log::info('Extracted State:', [$foundState]);
+        Log::info('Extracted Latitude:', [$latitude]);
+        Log::info('Extracted Longitude:', [$longitude]);
+
+        // Perform validation
+        $zipMatch = strcasecmp($foundZipCode, $zipcode) === 0;
+        $cityMatch = stripos($foundCity, $city) !== false;
+        $stateMatch = strcasecmp($foundState, $state) === 0;
+
+        if ($zipMatch && $cityMatch && $stateMatch) {
+            return [
+                'valid' => true,
+                'latitude' => $latitude,
+                'longitude' => $longitude
+            ];
         }
+    } else {
+        // Log error if response is not OK
+        Log::error('Invalid response from Google API:', [
+            'status' => $json['status'] ?? 'UNKNOWN',
+            'error_message' => $json['error_message'] ?? 'No error message provided',
+        ]);
     }
 
-    return false;
+    return ['valid' => false, 'latitude' => null, 'longitude' => null];
+}
 }
 
+// private function validateDestinationLocation($zipcode, $city, $state)
+// {
+//     $googleApiKey ='AIzaSyDsk5RExl2Xr7w2BayGTYdsePr2v6WBjmo';
+//     $address = urlencode(trim($zipcode) . ' ' . trim($city) . ' ' . trim($state));
 
-}
+//     $url = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key={$googleApiKey}";
+
+//     // Fetch the API response
+//     $response = file_get_contents($url);
+//     $json = json_decode($response, true);
+
+//     // Log the response for debugging
+//     Log::info('Google API Response:', $json);
+
+//     if ($json['status'] === 'OK' && isset($json['results'][0])) {
+//         $result = $json['results'][0];
+//         $foundZipCode = '';
+//         $foundCity = '';
+//         $foundState = '';
+
+//         // Extract address components
+//         foreach ($result['address_components'] as $component) {
+//             if (in_array('postal_code', $component['types'])) {
+//                 $foundZipCode = $component['long_name'];
+//             }
+//             if (in_array('locality', $component['types'])) {
+//                 $foundCity = $component['long_name'];
+//             } elseif (in_array('sublocality', $component['types'])) {
+//                 $foundCity = $component['long_name'];
+//             }
+//             if (in_array('administrative_area_level_1', $component['types'])) {
+//                 $foundState = $component['short_name'];
+//             }
+//         }
+
+//         // Log extracted components for debugging
+//         Log::info('Extracted Zip Code:', [$foundZipCode]);
+//         Log::info('Extracted City:', [$foundCity]);
+//         Log::info('Extracted State:', [$foundState]);
+
+//         // Perform the validation with detailed logging
+//         $zipMatch = strcasecmp($foundZipCode, $zipcode) === 0;
+//         $cityMatch = stripos($foundCity, $city) !== false; // Partial match for city
+//         $stateMatch = strcasecmp($foundState, $state) === 0;
+
+//         Log::info('ZIP Match:', [$zipMatch]);
+//         Log::info('City Match:', [$cityMatch]);
+//         Log::info('State Match:', [$stateMatch]);
+
+//         if ($zipMatch && $cityMatch && $stateMatch) {
+//             return true;
+//         }
+//     } else {
+//         // Log the error if the response status is not OK
+//         Log::error('Invalid response from Google API:', [
+//             'status' => $json['status'] ?? 'UNKNOWN',
+//             'error_message' => $json['error_message'] ?? 'No error message provided',
+//         ]);
+//     }
+
+//     return false;
+// }
+
+
+
 
 
 

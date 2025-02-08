@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\DropReason;
 use Illuminate\Http\Request;
 use App\Events\CustomerFormFilled;
+use App\Models\Request as RequestModel;
 
 class CustomerController extends Controller
 {
@@ -34,9 +35,9 @@ class CustomerController extends Controller
             'communication_preference.*' => 'in:text,call,email,app',
         ]);
 
-        // Get the request_id from the session, so users cannot tamper with it
+        // Get the request_id,provider_id from the session, so users cannot tamper with it
         $requestId = session('request_id');
-
+        $providerId = session('provider_id');
         if (!$requestId) {
             return redirect()->route('requests.create')->withErrors(['error' => 'Request session expired. Please try again.']);
         }
@@ -50,8 +51,14 @@ class CustomerController extends Controller
             'other_phone_number' => $validatedData['other_phone_number'],
             'communication_preference' => implode(',', $validatedData['communication_preference']),
         ]);
+        // $provider = RequestModel::where('request_id', $requestId)->first();
+        // if (!$provider) {
+        //     return redirect()->back()->withErrors(['error' => 'Provider not found for this request.']);
+        // }
 
-        return redirect()->route('payment.create', ['request_id' => $requestId]);
+        // $providerId = $provider->provider_id;
+
+        return redirect()->route('payment.create', ['request_id' => $requestId, 'provider_id' => $providerId]);
 
 
     }

@@ -69,7 +69,6 @@ class RequestController extends Controller
 
         $currentMinutes = now()->hour * 60 + now()->minute;
         $dayOfWeek = now()->dayOfWeek;
-
         $provider = Provider::join('zipcode_coverage', 'providers.provider_id', '=', 'zipcode_coverage.provider_id')
         ->join('availabilities', function ($join) use ($validatedData) {
             $join->on('providers.provider_id', '=', 'availabilities.provider_id')
@@ -121,7 +120,7 @@ class RequestController extends Controller
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
-
+        session(['provider_id' => $provider->provider_id]);
         $service = Service::find($validatedData['service_id'])->name;
         $request->session()->put('service', $service);
         $request->session()->put('request_id', $requestEntry->request_id);

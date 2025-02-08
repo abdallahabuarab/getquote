@@ -7,7 +7,7 @@
     @vite(['resources/js/app.js', 'resources/css/app.css'])
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>Tow Now - Get a Quote</title>
+    <title>Tow Now -  Get an Instant Quote</title>
     <style>
         /* Main Page Styles */
         body {
@@ -99,7 +99,7 @@
 
     <div class="container">
         <div class="form-container">
-            <h2>Get a Quote</h2>
+            <h2> Get an Instant Quote</h2>
             <form id="quoteForm" method="POST" action="{{ route('requests.store') }}">
                 @csrf
                 @if($errors->any())
@@ -149,10 +149,10 @@
                     </select>
                 </div>
 
-                <div class="form-check form-switch">
+                {{-- <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="manualInputToggle" onclick="toggleManualInput()">
                     <label class="form-check-label" for="manualInputToggle">Manually Enter Location</label>
-                </div>
+                </div> --}}
 
                 <!-- Autocomplete Section -->
                 <div id="autocompleteLocationSection" class="form-group">
@@ -216,7 +216,7 @@
         </div>
     </div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4mO0ojwx3yLd6tf68E62eNRyZ8DzhDWc&libraries=places&callback=initAutocomplete" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDsk5RExl2Xr7w2BayGTYdsePr2v6WBjmo&libraries=places&callback=initAutocomplete" async defer></script>
 
     <script>
         let autocomplete;

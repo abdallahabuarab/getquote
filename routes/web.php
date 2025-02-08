@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
@@ -64,10 +65,18 @@ Route::get('/provider/response/{provider_id}/{request_id}/{token}', [ProviderRes
 Route::get('/provider/apology/{request_id}', [ProviderResponseController::class, 'showApology'])->name('provider.apology');
 
 
-Route::post('/payment/cancel', [PaymentController::class, 'cancelPayment'])->name('payment.cancel');
+Route::get('/payment/create', [PaymentController::class, 'create'])->name('payment.create');
+Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+Route::get('/payment-success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
 
-    Route::get('/payment/create/{request_id}', [PaymentController::class, 'create'])->name('payment.create');
-    Route::post('/payment/submit', [PaymentController::class, 'submit'])->name('payment.submit');
+Route::get('/payment-authenticate', function (Request $request) {
+    return view('payment-authenticate', ['payment_intent' => $request->query('payment_intent')]);
+})->name('payment.auth');
+
+// Route::post('/payment/cancel', [PaymentController::class, 'cancelPayment'])->name('payment.cancel');
+
+//     Route::get('/payment/create/{request_id}', [PaymentController::class, 'create'])->name('payment.create');
+//     Route::post('/payment/submit', [PaymentController::class, 'submit'])->name('payment.submit');
 
 
 
