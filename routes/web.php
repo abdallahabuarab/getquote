@@ -1,13 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\CustomerPricingController;
 use App\Http\Controllers\Dashboard\ClassController;
 use App\Http\Controllers\ProviderResponseController;
 use App\Http\Controllers\Dashboard\RejectsController;
@@ -65,6 +66,9 @@ Route::get('/provider/response/{provider_id}/{request_id}/{token}', [ProviderRes
 Route::get('/provider/apology/{request_id}', [ProviderResponseController::class, 'showApology'])->name('provider.apology');
 
 
+
+
+
 Route::get('/payment/create', [PaymentController::class, 'create'])->name('payment.create');
 Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
 Route::get('/payment-success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
@@ -72,6 +76,16 @@ Route::get('/payment-success', [PaymentController::class, 'paymentSuccess'])->na
 Route::get('/payment-authenticate', function (Request $request) {
     return view('payment-authenticate', ['payment_intent' => $request->query('payment_intent')]);
 })->name('payment.auth');
+
+Route::get('/customer/pricing', [CustomerPricingController::class, 'showPricing'])->name('customer.pricing');
+Route::post('/customer/pricing/accept', [CustomerPricingController::class, 'acceptPricing'])->name('customer.pricing.accept');
+Route::post('/customer/pricing/reject', [CustomerPricingController::class, 'rejectPricing'])->name('customer.pricing.reject');
+
+Route::get('/customer/rejection/{request_id}', function (Request $request, $request_id) {
+    $reason = $request->query('reason');
+    return view('customer-rejection', compact('request_id', 'reason'));
+})->name('customer.rejection');
+
 
 // Route::post('/payment/cancel', [PaymentController::class, 'cancelPayment'])->name('payment.cancel');
 

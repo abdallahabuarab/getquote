@@ -49,40 +49,63 @@ class ProviderResponseController extends Controller
         $reasonId = null;
         $eta = null;
 
-
         if ($response === 'reject') {
             $reasonId = $request->input('drop_reason');
 
-            // Validate that reason_id is provided for rejection
             if (!$reasonId) {
                 return redirect()->back()->withErrors(['drop_reason' => 'Please select a drop reason.']);
             }
-        }else{
-            $eta = $request->input('eta');
 
+            // Save rejection response in the database
+            ProviderResponse::create([
+                'request_id' => $request_id,
+                'provider_id' => $provider_id,
+                'provider_respose' => 'reject',
+                'reason_id' => $reasonId,
+                'eta' => null,
+                'provider_response_time' => now(),
+            ]);
+
+            // Broadcast rejection event to customer
+            broadcast(new ProviderResponseEvent('reject', $request_id, $reasonId, null));
+
+            Log::info('Provider rejected request', [
+                'request_id' => $request_id,
+                'reason_id' => $reasonId
+            ]);
+
+            return redirect()->route('provider.loading', ['request_id' => $request_id]);
         }
 
+        if ($response === 'accept') {
+            $eta = $request->input('eta');
+
+            if (!$eta) {
+                return redirect()->back()->withErrors(['eta' => 'Please provide an ETA.']);
+            }
         // Save provider response and ETA in the database
-        ProviderResponse::create([
-            'request_id' => $request_id,
-            'provider_id' => $provider_id,
-            'provider_respose' => $response,
-            'reason_id' => $reasonId,
-            'eta' => $eta, // Save the ETA
-            'provider_response_time' => now(),
-        ]);
 
-        // Broadcast the response to the customer using Laravel Echo/WebSockets
-        broadcast(new ProviderResponseEvent($response, $request_id, $reasonId, $eta));
 
-        // Log the data being broadcast
-        Log::info('Broadcasting ProviderResponseEvent', [
-            'response' => $response,
-            'request_id' => $request_id,
-            'reason_id' => $reasonId,
-            'eta' => $eta,
-        ]);
-        return redirect()->route('provider.loading', ['request_id' => $request_id]);
+            $finalPrice = app(PaymentController::class)->calculateFinalPrice($request_id, $provider_id);
+
+            ProviderResponse::create([
+                'request_id' => $request_id,
+                'provider_id' => $provider_id,
+                'provider_respose' => 'accept',
+                'reason_id' => null,
+                'eta' => $eta,
+                'provider_response_time' => now(),
+            ]);
+
+            // Broadcast acceptance event to customer
+            broadcast(new ProviderResponseEvent('accept', $request_id, null, $eta, $finalPrice));
+            Log::info('Provider accepted request', [
+                'request_id' => $request_id,
+                'eta' => $eta,
+                'final_price' => $finalPrice
+            ]);
+            return redirect()->route('provider.loading', ['request_id' => $request_id]);
+        }
+
     }
-
 }

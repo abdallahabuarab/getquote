@@ -1,5 +1,4 @@
 <?php
-// app/Events/ProviderResponse.php
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
@@ -7,23 +6,17 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class ProviderResponse implements ShouldBroadcast
+class CustomerRejectedPricing implements ShouldBroadcast
 {
     use InteractsWithSockets, SerializesModels;
 
-    public $response;
     public $requestId;
     public $reason;
-    public $eta;
-    public $finalPrice;
 
-    public function __construct($response, $requestId, $reason = null, $eta = null, $finalPrice = 0)
+    public function __construct($requestId, $reason)
     {
-        $this->response = $response;
         $this->requestId = $requestId;
         $this->reason = $reason;
-        $this->eta = $eta;
-        $this->finalPrice = $finalPrice;
     }
 
     public function broadcastOn()
@@ -34,11 +27,8 @@ class ProviderResponse implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'response' => $this->response,
             'requestId' => $this->requestId,
-            'reason' => $this->reason,
-            'eta' => $this->eta,
-            'finalPrice' => $this->finalPrice,
+            'reason' => $this->reason
         ];
     }
 }

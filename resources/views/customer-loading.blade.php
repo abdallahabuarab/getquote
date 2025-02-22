@@ -11,7 +11,7 @@
 
     <div id="loading-page" class="loading-container">
         <div class="spinner"></div>
-        <p>Please wait, we are contacting the provider...</p>
+        <p>Please wait, we are contacting the provider: A provider near you is being located</p>
     </div>
 
     <script>
@@ -25,8 +25,8 @@
                         console.log('Event received:', e);
 
                         if (e.response === 'accept') {
-                            console.log('Redirecting to customer form...');
-                            window.location.href = '{{ route('customer.create', ['request_id' => $request_id]) }}';
+                            console.log('Redirecting to pricing page...');
+                            window.location.href = '{{ route('customer.pricing') }}?request_id={{ $request_id }}&final_price=' + e.finalPrice + '&eta=' + e.eta;
                         } else if (e.response === 'reject') {
                             console.log('Redirecting to apology page...');
                             let url = '/customer/apology/' + {{ $request_id }} + '/' + e.reason;

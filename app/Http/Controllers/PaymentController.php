@@ -111,7 +111,7 @@ class PaymentController extends Controller
 //     return round($finalPrice, 2);
 // }
 
-private function calculateFinalPrice($requestId, $providerId)
+public function calculateFinalPrice($requestId, $providerId)
 {
     //  Step 1: Retrieve the Request Data
     $requestEntry = RequestModel::find($requestId);
@@ -208,7 +208,7 @@ private function calculateFinalPrice($requestId, $providerId)
     return round($finalPrice, 2);
 }
 
-private function getLatLngFromAddress($zipcode, $city, $state)
+public function getLatLngFromAddress($zipcode, $city, $state)
 {
     $googleApiKey = 'AIzaSyDsk5RExl2Xr7w2BayGTYdsePr2v6WBjmo';
     $address = urlencode("{$zipcode} {$city} {$state}");
@@ -229,7 +229,7 @@ private function getLatLngFromAddress($zipcode, $city, $state)
     /**
      * Calculate distance using Haversine formula.
      */
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    public function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371; // km
 
