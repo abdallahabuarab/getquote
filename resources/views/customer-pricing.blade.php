@@ -150,8 +150,8 @@
             <label for="reject_reason">Reason for Rejection:</label>
             <select name="reject_reason" id="reject_reason" required>
                 <option value="">Select Reason</option>
-                <option value="cost_exceeds_expectations">The cost exceeds expectations</option>
-                <option value="eta_too_long">The estimated delivery time is longer than anticipated</option>
+                <option value="The cost exceeds expectations">The cost exceeds expectations</option>
+                <option value="The estimated delivery time is longer than anticipated">The estimated delivery time is longer than anticipated</option>
             </select>
 
             <button type="submit" class="btn reject-btn">Reject Request</button>
