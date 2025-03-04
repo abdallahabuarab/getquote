@@ -26,7 +26,9 @@
                                         <th>Zipcode</th>
                                         <th>Country</th>
                                         <th>City</th>
-                                        <th>Created At</th>
+                                        <th>Class</th>
+                                        <th>Service</th>
+                                        <th>Reject Time</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -35,6 +37,8 @@
                                             <td>{{ $reject->reject_zipcode }}</td>
                                             <td>{{ $reject->reject_ip_country }}</td>
                                             <td>{{ $reject->reject_ip_city }}</td>
+                                            <td>{{ $reject->classModel->name }}</td>
+                                            <td>{{ $reject->service->name }}</td>
                                             <td>{{ $reject->created_at->format('Y-m-d H:i') }}</td>
                                         </tr>
                                     @endforeach

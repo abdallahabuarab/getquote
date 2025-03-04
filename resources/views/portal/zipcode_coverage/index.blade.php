@@ -3,12 +3,12 @@
 @section('admin')
 <div class="page-content">
     <div class="container-fluid">
-        <h4 class="mb-4">ZIP Code Coverage</h4>
+        <h4 class="mb-4">Coverage area</h4>
 
         <!-- Display ZIP Code Coverage -->
         <div class="card shadow-sm">
             <div class="card-body">
-                <h5 class="card-title text-primary">Current ZIP Code Coverage</h5>
+                <h5 class="card-title text-primary">Current Coverage area</h5>
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>

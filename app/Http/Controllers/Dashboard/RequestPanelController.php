@@ -14,7 +14,7 @@ class RequestPanelController extends Controller
 
         $requests = CustomerRequest::query()
         ->search($searchTerm)
-        ->orderBy('request_id', 'DESC')
+        ->orderBy('created_at', 'DESC')
         ->paginate(10);
 
 

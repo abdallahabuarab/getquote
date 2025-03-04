@@ -27,9 +27,11 @@
                         <table class="table table-striped dt-responsive nowrap" style="width: 100%">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Contact Phone</th>
+                                    <th>Tax ID</th>
                                     <th>Status</th>
                                     <th class="text-end">Action</th>
                                 </tr>
@@ -37,9 +39,11 @@
                             <tbody>
                                 @foreach($providers as $provider)
                                     <tr>
+                                        <td>{{ $provider->provider_id }}</td>
                                        <td> <a href="{{ route('providerspa.show', $provider->provider_id) }}">{{ $provider->user->name }}</a></td>
                                         <td>{{ $provider->user->email }}</td>
                                         <td>{{ $provider->contact_phone }}</td>
+                                        <td>{{ $provider->tax_id }}</td>
                                         <td>
                                             <i class="ri-checkbox-blank-circle-fill font-size-10 {{ $provider->is_active === 'yes' ? 'text-success' : 'text-danger' }} align-middle me-2"></i>
                                             {{ $provider->is_active === 'yes' ? 'Active' : 'Inactive' }}

@@ -32,7 +32,7 @@
                     <div class="row mb-3">
                         <label for="provider_name" class="col-sm-2 col-form-label">Provider Name</label>
                         <div class="col-sm-6">
-                            <input type="text" name="provider_name" id="provider_name" class="form-control" value="{{ old('provider_name', $provider->provider_name) }}" required>
+                            <input type="text" name="provider_name" id="provider_name" class="form-control" value="{{ old('provider_name', $provider->provider_name) }}" readonly>
                         </div>
                     </div>
 
@@ -254,10 +254,12 @@
 
                     <!-- Submit -->
                     <div class="row mb-3">
-                        <div class="col-sm-6 offset-sm-2">
+                        <div class="col-sm-6 offset-sm-2 d-flex gap-2">
                             <button type="submit" class="btn btn-primary">Update Provider</button>
+                            <a href="{{ route('providerspa.index') }}" class="btn btn-secondary">Back</a>
                         </div>
                     </div>
+
                 </div>
             </div>
         </form>

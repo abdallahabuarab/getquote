@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reject extends Model
 {
+
     use HasFactory;
     protected $fillable = [
         'reject_ip_address', 'reject_ip_city', 'reject_ip_region', 'reject_ip_country',
@@ -31,4 +32,14 @@ class Reject extends Model
     {
         return $this->belongsTo(LocationType::class, 'reject_location_type_id');
     }
+    public function classModel()
+{
+    return $this->belongsTo(ClassName::class, 'reject_class', 'class_id');
+}
+
+public function service()
+{
+    return $this->belongsTo(Service::class, 'reject_service', 'service_id');
+}
+
 }

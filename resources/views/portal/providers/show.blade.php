@@ -57,7 +57,7 @@
                 <div class="col-12">
                     <div class="card mt-4 shadow-sm">
                         <div class="card-body">
-                            <h4 class="card-title text-primary">ZIP Code Coverage</h4>
+                            <h4 class="card-title text-primary">Coverage area</h4>
 
                             <!-- Search ZIP Codes -->
                             <div class="mb-3">
@@ -117,8 +117,12 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <button type="submit" class="btn btn-primary mt-3">Save ZIP Codes</button>
+                                <div class="row mb-3">
+                                    <div class="col-sm-6">
+                                <button type="submit" class="btn btn-primary">Save ZIP Codes</button>
+                                <a href="{{ route('providerspa.index') }}" class="btn btn-secondary">Back</a>
+                                    </div>
+                                </div>
                             </form>
                         </div>
 
@@ -293,7 +297,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary mt-3">Save Availabilities</button>
+                                <div class="row mb-3">
+                                    <div class="col-sm-6">
+
+                                <button type="submit" class="btn btn-primary">Save Availabilities</button>
+                                <a href="{{ route('providerspa.index') }}" class="btn btn-secondary">Back</a>
+                                </div>
+                                </div>
                             </form>
                         </div>
                     </div>

@@ -29,7 +29,9 @@
                                         <th>Request Zipcode</th>
                                         <th>Request Country</th>
                                         <th>Request City</th>
-                                        <th>Created At</th>
+                                        <th>Request Class</th>
+                                        <th>Request Service</th>
+                                        <th>Request Time</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -38,6 +40,8 @@
                                             <td>{{ $request->request_zipcode }}</td>
                                             <td>{{ $request->request_ip_country }}</td>
                                             <td>{{ $request->request_ip_city }}</td>
+                                            <td>{{ $request->classModel->name }}</td>
+                                            <td>{{ $request->service->name }}</td>
                                             <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
 
                                         </tr>

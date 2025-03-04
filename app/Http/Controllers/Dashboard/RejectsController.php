@@ -12,13 +12,15 @@ class RejectsController extends Controller
     {
         // Search functionality
         $search = $request->query('search');
+
         $rejects = Reject::when($search, function ($query, $search) {
-            $query->where('reject_zipcode', 'like', "%{$search}%")
-                  ->orWhere('reject_ip_country', 'like', "%{$search}%")
-                  ->orWhere('reject_ip_city', 'like', "%{$search}%");
-        })
-        ->paginate(10);
+                $query->where('reject_zipcode', 'like', "%{$search}%")
+                      ->orWhere('reject_ip_country', 'like', "%{$search}%")
+                      ->orWhere('reject_ip_city', 'like', "%{$search}%");
+            })
+            ->orderBy('created_at', 'DESC')
+            ->paginate(10);
 
         return view('portal.rejects.index', compact('rejects'));
-    }
+        }
 }
