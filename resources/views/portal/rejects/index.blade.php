@@ -28,6 +28,7 @@
                                         <th>City</th>
                                         <th>Class</th>
                                         <th>Service</th>
+                                        <th>Reason</th>
                                         <th>Reject Time</th>
                                     </tr>
                                 </thead>
@@ -39,6 +40,7 @@
                                             <td>{{ $reject->reject_ip_city }}</td>
                                             <td>{{ $reject->classModel->name }}</td>
                                             <td>{{ $reject->service->name }}</td>
+                                            <td>{{ $reject->reason->reason }}</td>
                                             <td>{{ $reject->created_at->format('Y-m-d H:i') }}</td>
                                         </tr>
                                     @endforeach
