@@ -13,7 +13,8 @@ class Provider extends Model
        'user_id', 'provider_name', 'provider_address', 'provider_city', 'provider_state',
         'zipcode', 'provider_phone', 'provider_fax', 'provider_email', 'contact_name',
         'contact_phone', 'is_active', 'weekend_m', 'holiday_m', 'evening_m',
-        'dispatch_method', 'request_processing', 'payment_distribution'
+        'dispatch_method', 'request_processing', 'payment_distribution','tax_id'
+
     ];
     protected $primaryKey = 'provider_id';
  public function user()

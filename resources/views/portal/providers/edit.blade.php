@@ -35,6 +35,12 @@
                             <input type="text" name="provider_name" id="provider_name" class="form-control" value="{{ old('provider_name', $provider->provider_name) }}" readonly>
                         </div>
                     </div>
+                    <div class="row mb-3">
+                        <label for="provider_name" class="col-sm-2 col-form-label">Tax ID</label>
+                        <div class="col-sm-6">
+                            <input type="text" name="tax_id" id="tax_id" class="form-control" value="{{ old('tax_id', $provider->tax_id) }}" readonly>
+                        </div>
+                    </div>
 
                     <!-- Provider Email -->
                     <div class="row mb-3">

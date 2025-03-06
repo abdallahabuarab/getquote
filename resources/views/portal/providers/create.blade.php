@@ -41,6 +41,19 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
+                                <label for="tax_id" class="col-sm-2 col-form-label">Tax ID</label>
+                                <div class="col-sm-4">
+                                    <input class="form-control @error('tax_id') is-invalid @enderror"
+                                           type="text" id="tax_id" name="tax_id"
+                                           value="{{ old('tax_id') }}"
+                                           placeholder="Enter 9-digit Tax ID" required>
+                                    @error('tax_id')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
                                 <label for="provider_name" class="col-sm-2 col-form-label">Contact Name</label>
                                 <div class="col-sm-4">
                                     <input class="form-control @error('provider_name') is-invalid @enderror" type="text" id="provider_name" name="contact_name" value="{{ old('provider_name') }}" placeholder="Enter provider name" required>
