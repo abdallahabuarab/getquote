@@ -18,26 +18,12 @@
                         <h4 class="card-title">Email: {{ $adminUser->email }}</h4>
                         <hr>
                         <a href="{{ route('edit.profile') }}" class="btn btn-info btn-rounded waves-effect waves-light">Edit Profile</a>
+                        <a href="{{route('dashboard')}}" class="btn btn-secondary btn-rounded">Back to dashboard</a>
                     </div>
                 </div>
             </div>
 
-            @if($adminUser->provider)
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Assigned Zip Codes</h4>
-                        <hr>
-                            <ul class="list-group">
-                                @foreach ($adminUser->provider->zipCodes as $zipCode)
-                                    <li class="list-group-item">{{ $zipCode->zipcode }}</li>
-                                @endforeach
-                            </ul>
 
-                        @endif
-                    </div>
-                </div>
-            </div>
         </div>
 
     </div>
