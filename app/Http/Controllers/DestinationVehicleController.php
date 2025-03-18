@@ -67,7 +67,11 @@ class DestinationVehicleController extends Controller
     $service = Service::find($requestEntry->request_service);
     if ($service && strtolower($service->name) === 'tow') {
         $validatedDestinationData = $request->validate([
-            'destination_zipcode' => 'required|numeric',
+            'destination_zipcode' => [
+        'required',
+        'numeric',
+        'exists:zipcode_reference,zipcode'  // Check if exists in the table
+    ],
             'destination_business_name' => 'nullable|string|max:50',
             'destination_street_number' => 'nullable|string|max:20',
             'destination_route' => 'nullable|string|max:32',
@@ -79,7 +83,7 @@ class DestinationVehicleController extends Controller
 
         // Clean the ZIP code
         $validatedDestinationData['destination_zipcode'] = preg_replace('/\D/', '', $validatedDestinationData['destination_zipcode']);
-
+if($validatedDestinationData)
         // Validate the destination address with Google Geocoding API
         $locationValidation  = $this->validateDestinationLocation(
             $validatedDestinationData['destination_zipcode'],
