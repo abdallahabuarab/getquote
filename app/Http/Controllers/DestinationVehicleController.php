@@ -14,17 +14,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Request as RequestModel;
-use App\Models\Service;  // Ensure the Service model is imported
-use App\Models\Customer;  // Import the Customer model to get the customer's name
+use App\Models\Service;
+use App\Models\Customer;
 
 class DestinationVehicleController extends Controller
 {
     public function create($request_id, Request $request)
     {
-        $providerId = $request->query('provider_id'); // Get provider ID from query parameter
-        // Retrieve the provider based on the ID
+        $providerId = $request->query('provider_id');
         $provider = Provider::find($providerId);
-        // Other necessary data
         $service = session()->get('service', 'other');
         $locationTypes = \App\Models\LocationType::all();
 
@@ -90,10 +88,10 @@ if($validatedDestinationData)
             $validatedDestinationData['destination_locality'],
             $validatedDestinationData['destination_administrative_area_level_1']
         );
-
-        if (!$locationValidation) {
+        if (!$locationValidation || !$locationValidation['longitude'] ) {
             return redirect()->back()->withErrors(['destination_zipcode' => 'Invalid destination location: Please check the ZIP code, city, or state.'])->withInput();
         }
+
 
         // Insert destination information
         Destination::create([
