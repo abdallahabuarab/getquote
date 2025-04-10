@@ -38,7 +38,7 @@ class DestinationVehicleController extends Controller
         'vehicle_make' => 'required|string|max:25',
         'vehicle_model' => 'required|string|max:25',
         'vehicle_color' => 'required|string|max:20',
-        'vehicle_style' => 'required|string|max:20',
+        'vehicle_style' => '',
         'vin' => '',
         'plate' => '',
     ]);
