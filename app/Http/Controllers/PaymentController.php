@@ -353,6 +353,9 @@ public function getLatLngFromAddress($zipcode, $city, $state)
         $zipcode_p = session('zipcode');
         $city_p = session('city');
         $country_p = session('country');
+        $zipcode_des = session('destination_zipcode');
+        $city_des = session('destination_locality');
+        $state_des = session('destination_state');
 
 
         Mail::send('emails.payment-confirmation', [
@@ -360,7 +363,10 @@ public function getLatLngFromAddress($zipcode, $city, $state)
             'service'=>$service,
             'zipcode'=>$zipcode_p,
             'city'=>$city_p,
-            'country'=>$country_p
+            'country'=>$country_p,
+            'destination_zipcode'=>$zipcode_des,
+            'destination_locality'=>$city_des,
+            'destination_state'=>$state_des
         ], function ($message) use ($provider, $requestId) {
             $message->to($provider->provider_email)
                     ->subject('Payment Confirmed / Request #' . $requestId);

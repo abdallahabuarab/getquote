@@ -108,6 +108,11 @@ if($validatedDestinationData)
             'destination_location_type_id' => $validatedDestinationData['destination_location_type_id'],
             'destination_name' => $validatedDestinationData['destination_name'] ?? 'N/A',
         ]);
+        session([
+            'destination_zipcode' => $validatedDestinationData['destination_zipcode'],
+            'destination_locality' => $validatedDestinationData['destination_locality'],
+            'destination_state' => strtoupper($validatedDestinationData['destination_administrative_area_level_1']),
+        ]);
 
     }
 
