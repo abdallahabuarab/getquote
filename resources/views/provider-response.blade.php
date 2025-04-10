@@ -139,9 +139,9 @@
             <div id="dropReasonSection" class="hidden mt-3">
                 <label for="drop_reason">Drop Reason:</label>
                 <select name="drop_reason" id="drop_reason">
-                    @foreach(\App\Models\DropReason::all() as $dropReason)
-                        <option value="{{ $dropReason->reason_id }}">{{ $dropReason->reason }}</option>
-                    @endforeach
+                        <option value="Out of Area">Out of Area</option>
+                        <option value="Equipment not Available">Equipment not Available</option>
+                        <option value="Inclement Weather">Inclement Weather</option>
                 </select>
 
                 <button type="submit" name="action" value="reject" class="btn btn-reject mt-3">Submit Rejection</button>

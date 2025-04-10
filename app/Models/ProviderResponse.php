@@ -12,7 +12,7 @@ class ProviderResponse extends Model
 
     protected $fillable = [
         'request_id', 'provider_id', 'provider_respose',
-        'eta', 'reason_id', 'provider_response_time'
+        'eta', 'reason', 'provider_response_time'
     ];
 
     public function request()

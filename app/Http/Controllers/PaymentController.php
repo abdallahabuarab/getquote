@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use App\Events\CustomerFormFilled;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use App\Models\Request as RequestModel;
 
 class PaymentController extends Controller
@@ -313,6 +314,8 @@ public function getLatLngFromAddress($zipcode, $city, $state)
 
             Log::info('Transaction Saved Successfully for Payment ID: ' . $payment->payment_id);
             broadcast(new CustomerFormFilled(true, $request->request_id));
+
+
             return redirect()->route('payment.success', ['request_id' => $request->request_id]);
 
         } catch (\Exception $e) {
@@ -328,15 +331,46 @@ public function getLatLngFromAddress($zipcode, $city, $state)
      */
     public function paymentSuccess(Request $request)
     {
-        $requestId = $request->query('request_id');
+        $requestId = $request->request_id;
+        if (!$requestId) {
+            return redirect()->back()->withErrors(['error' => 'No request ID found. Please submit the request first.']);
+        }
 
+        $requestEntry = RequestModel::find($requestId);
+
+        if (!$requestEntry) {
+            return redirect()->back()->withErrors(['error' => 'Request not found.']);
+        }
+
+        $providerId = session('provider_id');
+        $provider = Provider::find($providerId);
+
+        if (!$provider) {
+            return redirect()->back()->withErrors(['error' => 'provider not found.']);
+        }
+
+        $service = session('service');
+        $zipcode_p = session('zipcode');
+        $city_p = session('city');
+        $country_p = session('country');
+
+
+        Mail::send('emails.payment-confirmation', [
+            'provider' => $provider,
+            'service'=>$service,
+            'zipcode'=>$zipcode_p,
+            'city'=>$city_p,
+            'country'=>$country_p
+        ], function ($message) use ($provider, $requestId) {
+            $message->to($provider->provider_email)
+                    ->subject('Payment Confirmed / Request #' . $requestId);
+        });
         $payment = Payment::where('request_id', $requestId)->firstOrFail();
 
         $transaction = Transaction::where('payment_id', $payment->payment_id)->firstOrFail();
 
         return view('payment-success', compact('payment', 'transaction'));
     }
-
 }
 
 

@@ -61,7 +61,7 @@ class ProviderResponseController extends Controller
                 'request_id' => $request_id,
                 'provider_id' => $provider_id,
                 'provider_respose' => 'reject',
-                'reason_id' => $reasonId,
+                'reason' => $reasonId,
                 'eta' => null,
                 'provider_response_time' => now(),
             ]);

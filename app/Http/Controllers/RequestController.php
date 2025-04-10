@@ -124,7 +124,9 @@ class RequestController extends Controller
         $service = Service::find($validatedData['service_id'])->name;
         $request->session()->put('service', $service);
         $request->session()->put('request_id', $requestEntry->request_id);
-
+        session(['zipcode' => $zipcode]);
+        session(['city' => $validatedData['request_ip_city'] ?? 'Default City']);
+        session(['country' => $validatedData['request_ip_country'] ?? $validatedData['manual_country']]);
         return redirect()->route('destination-vehicle.create', ['request_id' => $requestEntry->request_id,'provider_id' => $provider->provider_id]);
     }
 

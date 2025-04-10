@@ -110,19 +110,19 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="destination_zipcode">Destination Zip Code:</label>
-                        <input type="text" id="destination_zipcode" name="destination_zipcode" class="form-control" placeholder="Enter destination ZIP code" value="{{ old('destination_zipcode') }}">
+                        <label for="">Business Name:</label>
+                        <input type="text" id="" name="business_name" class="form-control" placeholder="Enter business name" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="destination_autocomplete">Destination Address:</label>
+                        <input type="text" id="destination_autocomplete" name="destination_autocomplete" class="form-control"
+                            placeholder="Start typing address..." value="{{ old('destination_autocomplete') }}">
                     </div>
 
-                    <div class="form-group">
-                        <label for="destination_locality">City:</label>
-                        <input type="text" id="destination_locality" name="destination_locality" class="form-control" placeholder="Enter destination city" value="{{ old('destination_locality') }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="destination_administrative_area_level_1">State:</label>
-                        <input type="text" id="destination_administrative_area_level_1" name="destination_administrative_area_level_1" class="form-control" placeholder="Enter destination state" value="{{ old('destination_administrative_area_level_1') }}">
-                    </div>
+                    <!-- Hidden inputs to store parsed values -->
+                    <input type="hidden" name="destination_zipcode" id="destination_zipcode" value="{{ old('destination_zipcode') }}">
+                    <input type="hidden" name="destination_locality" id="destination_locality" value="{{ old('destination_locality') }}">
+                    <input type="hidden" name="destination_administrative_area_level_1" id="destination_administrative_area_level_1" value="{{ old('destination_administrative_area_level_1') }}">
 
                 @endif
 
@@ -181,6 +181,42 @@
             this.querySelector('button[type="submit"]').disabled = true;
         });
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDsk5RExl2Xr7w2BayGTYdsePr2v6WBjmo&libraries=places&callback=initAutocomplete" async defer></script>
+    <script>
+        function initAutocomplete() {
+            const autocompleteInput = document.getElementById('destination_autocomplete');
+            const autocomplete = new google.maps.places.Autocomplete(autocompleteInput, {
+                types: ['geocode'],
+                componentRestrictions: { country: ['us'] }, // restrict to US if needed
+            });
+
+            autocomplete.addListener('place_changed', function () {
+                const place = autocomplete.getPlace();
+                let zip = '', city = '', state = '';
+
+                if (!place.address_components) return;
+
+                for (const component of place.address_components) {
+                    const types = component.types;
+                    if (types.includes('postal_code')) {
+                        zip = component.long_name;
+                    } else if (types.includes('locality')) {
+                        city = component.long_name;
+                    } else if (types.includes('administrative_area_level_1')) {
+                        state = component.short_name;
+                    }
+                }
+
+                // Fill hidden fields
+                document.getElementById('destination_zipcode').value = zip;
+                document.getElementById('destination_locality').value = city;
+                document.getElementById('destination_administrative_area_level_1').value = state;
+            });
+        }
+
+        window.addEventListener('load', initAutocomplete);
+    </script>
+
 </body>
 
 </html>

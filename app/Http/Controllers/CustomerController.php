@@ -18,11 +18,16 @@ class CustomerController extends Controller
     {
         return view('customer-loading', ['request_id' => $requestId]);
     }
-    public function showApology($requestId,$reason)
+    public function showApology($requestId)
     {
-        $dropReason = DropReason::find($reason)->reason;
-        return view('customer-apology', ['request_id' => $requestId, 'dropReason' => $dropReason]);
+        $dropReason = \App\Models\ProviderResponse::where('request_id', $requestId)->value('reason');
+
+        return view('customer-apology', [
+            'request_id' => $requestId,
+            'dropReason' => $dropReason
+        ]);
     }
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([

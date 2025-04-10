@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -125,9 +126,9 @@
                 padding: 20px;
             }
         }
-
     </style>
 </head>
+
 <body>
 
     <div class="pricing-container">
@@ -150,8 +151,9 @@
             <label for="reject_reason">Reason for Rejection:</label>
             <select name="reject_reason" id="reject_reason" required>
                 <option value="">Select Reason</option>
-                <option value="The cost exceeds expectations">The cost exceeds expectations</option>
-                <option value="The estimated delivery time is longer than anticipated">The estimated delivery time is longer than anticipated</option>
+                <option value="Too expensive">Too expensive</option>
+                <option value="Wait time is too long">Wait time is too long</option>
+                <option value="Don't need the service anymore">Don't need the service anymore</option>
             </select>
 
             <button type="submit" class="btn reject-btn">Reject Request</button>
@@ -159,4 +161,5 @@
     </div>
 
 </body>
+
 </html>

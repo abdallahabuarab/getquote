@@ -39,8 +39,8 @@ class DestinationVehicleController extends Controller
         'vehicle_model' => 'required|string|max:25',
         'vehicle_color' => 'required|string|max:20',
         'vehicle_style' => 'required|string|max:20',
-        'vin' => 'required|string|max:17',
-        'plate' => 'required|string|max:12',
+        'vin' => '',
+        'plate' => '',
     ]);
 
     // Get the request_id from session
@@ -70,7 +70,7 @@ class DestinationVehicleController extends Controller
         'numeric',
         'exists:zipcode_reference,zipcode'  // Check if exists in the table
     ],
-            'destination_business_name' => 'nullable|string|max:50',
+            'business_name' => 'nullable|string|max:50',
             'destination_street_number' => 'nullable|string|max:20',
             'destination_route' => 'nullable|string|max:32',
             'destination_locality' => 'nullable|string|max:32',
@@ -96,7 +96,7 @@ if($validatedDestinationData)
         // Insert destination information
         Destination::create([
             'request_id' => $requestId,
-            'business_name' => $validatedDestinationData['destination_business_name'] ?? 'N/A',
+            'business_name' => $validatedDestinationData['business_name'] ?? 'N/A',
             'destination_street_number' => $validatedDestinationData['destination_street_number'] ?? 'N/A',
             'destination_route' => $validatedDestinationData['destination_route'] ?? 'N/A',
             'destination_locality' => $validatedDestinationData['destination_locality'] ?? 'N/A',
@@ -108,6 +108,7 @@ if($validatedDestinationData)
             'destination_location_type_id' => $validatedDestinationData['destination_location_type_id'],
             'destination_name' => $validatedDestinationData['destination_name'] ?? 'N/A',
         ]);
+
     }
 
     // Vehicle section remains unchanged
