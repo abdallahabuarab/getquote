@@ -10,18 +10,21 @@ use Illuminate\Http\Request;
 class AvailabilityController extends Controller
 {
     public function index()
-    {
-        // Fetch the logged-in provider's ID
-        $providerId = Auth::user()->provider->provider_id;
+{
+    $provider = \App\Models\User::with('provider.zipcodeReference')->find(Auth::id())->provider;
 
-        // Get availabilities for the logged-in provider
-        $availabilities = Availability::with(['classModel', 'service'])
-            ->where('provider_id', $providerId)
-            ->get();
+    $availabilities = Availability::with([
+        'classModel',
+        'service',
+        'provider.schedules'
+    ])->where('provider_id', $provider->provider_id)->get();
 
-        // Pass data to the view
-        return view('portal.availabilities.index', compact('availabilities'));
-    }
+    $timezone = $provider->zipcodeReference->timezone ?? 'UTC';
+
+    return view('portal.availabilities.index', compact('availabilities', 'timezone'));
+
+}
+
     public function updateAvailability(Request $request, $provider_id, $class_id, $service_id)
     {
         $request->validate([
