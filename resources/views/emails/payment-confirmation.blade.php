@@ -10,9 +10,9 @@ Country: {{ $country }}<br>
 ZIP Code: {{ $zipcode }}</p>
 
 <p><strong>Destination Location:</strong><br>
-City: {{ $city_des ?? 'N/A' }}<br>
-State: {{ $state_des ?? 'N/A' }}<br>
-ZIP Code: {{ $zipcode_des ?? 'N/A' }}</p>
+City: {{ $destination_locality ?? 'N/A' }}<br>
+State: {{ $destination_state ?? 'N/A' }}<br>
+ZIP Code: {{ $destination_zipcode ?? 'N/A' }}</p>
 
 <p>Thank you</p>
 
