@@ -172,9 +172,7 @@ public function calculateFinalPrice($requestId, $providerId)
     //  Log the Enroute Calculation
     Log::info("Enroute miles: $enrouteMiles | Chargeable: $enrouteMilesChargeable | Enroute Cost: $enrouteCost");
 
-    // ----------------------------------------------
     //  Step 7: Calculate Loaded Miles Charge (Only for Tow Services)
-    // ----------------------------------------------
     $service = Service::find($requestEntry->request_service);
     if (strtolower($service->name) === 'tow') { // If service is towing
         $destination = Destination::where('request_id', $requestId)->first();
@@ -312,6 +310,7 @@ public function getLatLngFromAddress($zipcode, $city, $state)
                 'transaction_confirmation' => $paymentIntent->id,
             ]);
 
+
             Log::info('Transaction Saved Successfully for Payment ID: ' . $payment->payment_id);
             broadcast(new CustomerFormFilled(true, $request->request_id));
 
@@ -350,23 +349,36 @@ public function getLatLngFromAddress($zipcode, $city, $state)
         }
 
         $service = session('service');
+        $class = session('class');
         $zipcode_p = session('zipcode');
         $city_p = session('city');
         $country_p = session('country');
         $zipcode_des = session('destination_zipcode');
         $city_des = session('destination_locality');
         $state_des = session('destination_state');
+        $vehicle_year=session('vehicle_year');
+        $vehicle_make=session('vehicle_make');
+        $vehicle_model=session('vehicle_model');
+        $VIN=session('VIN');
+        $Plate=session('Plate');
+
 
 
         Mail::send('emails.payment-confirmation', [
             'provider' => $provider,
             'service'=>$service,
+            'class'=>$class,
             'zipcode'=>$zipcode_p,
             'city'=>$city_p,
             'country'=>$country_p,
             'destination_zipcode'=>$zipcode_des,
             'destination_locality'=>$city_des,
-            'destination_state'=>$state_des
+            'destination_state'=>$state_des,
+            'vehicle_year'=>$vehicle_year,
+            'vehicle_make'=>$vehicle_make,
+            'vehicle_model'=>$vehicle_model,
+            'VIN'=>$VIN,
+            'Plate'=>$Plate,
         ], function ($message) use ($provider, $requestId) {
             $message->to($provider->provider_email)
                     ->subject('Payment Confirmed / Request #' . $requestId);

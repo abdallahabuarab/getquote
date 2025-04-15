@@ -122,7 +122,10 @@ class RequestController extends Controller
         ]);
         session(['provider_id' => $provider->provider_id]);
         $service = Service::find($validatedData['service_id'])->name;
+        $class = ClassName::find($validatedData['class_id'])->name;
         $request->session()->put('service', $service);
+        $request->session()->put('class', $class);
+        $request->session()->put('class_id', $validatedData['class_id']);
         $request->session()->put('request_id', $requestEntry->request_id);
         session(['zipcode' => $zipcode]);
         session(['city' => $validatedData['request_ip_city'] ?? 'Default City']);

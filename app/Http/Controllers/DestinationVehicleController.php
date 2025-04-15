@@ -127,6 +127,13 @@ if($validatedDestinationData)
         'VIN' => $validatedData['vin'],
         'Plate' => $validatedData['plate'],
     ]);
+    session([
+        'vehicle_year' => $validatedData['vehicle_year']??'',
+        'vehicle_make' => $validatedData['vehicle_make']??'',
+        'vehicle_model' => $validatedData['vehicle_model']??'',
+        'VIN' => $validatedData['vin']??'',
+        'Plate' => $validatedData['Plate']??'',
+    ]);
 
 
     $expires = Carbon::now()->addMinutes(50);
