@@ -7,10 +7,12 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Service;
 use App\Models\Provider;
+use App\Models\ClassName;
 use Stripe\PaymentIntent;
 use App\Models\Destination;
 use App\Models\InvoiceItem;
 use App\Models\Transaction;
+use App\Models\Availability;
 use Illuminate\Http\Request;
 use App\Events\CustomerFormFilled;
 use Illuminate\Support\Facades\DB;
@@ -325,70 +327,80 @@ public function getLatLngFromAddress($zipcode, $city, $state)
 
 
 
-    /**
-     * Show the payment success page.
-     */
+
     public function paymentSuccess(Request $request)
-    {
-        $requestId = $request->request_id;
-        if (!$requestId) {
-            return redirect()->back()->withErrors(['error' => 'No request ID found. Please submit the request first.']);
-        }
-
-        $requestEntry = RequestModel::find($requestId);
-
-        if (!$requestEntry) {
-            return redirect()->back()->withErrors(['error' => 'Request not found.']);
-        }
-
-        $providerId = session('provider_id');
-        $provider = Provider::find($providerId);
-
-        if (!$provider) {
-            return redirect()->back()->withErrors(['error' => 'provider not found.']);
-        }
-
-        $service = session('service');
-        $class = session('class');
-        $zipcode_p = session('zipcode');
-        $city_p = session('city');
-        $country_p = session('country');
-        $zipcode_des = session('destination_zipcode');
-        $city_des = session('destination_locality');
-        $state_des = session('destination_state');
-        $vehicle_year=session('vehicle_year');
-        $vehicle_make=session('vehicle_make');
-        $vehicle_model=session('vehicle_model');
-        $VIN=session('VIN');
-        $Plate=session('Plate');
-
-
-
-        Mail::send('emails.payment-confirmation', [
-            'provider' => $provider,
-            'service'=>$service,
-            'class'=>$class,
-            'zipcode'=>$zipcode_p,
-            'city'=>$city_p,
-            'country'=>$country_p,
-            'destination_zipcode'=>$zipcode_des,
-            'destination_locality'=>$city_des,
-            'destination_state'=>$state_des,
-            'vehicle_year'=>$vehicle_year,
-            'vehicle_make'=>$vehicle_make,
-            'vehicle_model'=>$vehicle_model,
-            'VIN'=>$VIN,
-            'Plate'=>$Plate,
-        ], function ($message) use ($provider, $requestId) {
-            $message->to($provider->provider_email)
-                    ->subject('Payment Confirmed / Request #' . $requestId);
-        });
-        $payment = Payment::where('request_id', $requestId)->firstOrFail();
-
-        $transaction = Transaction::where('payment_id', $payment->payment_id)->firstOrFail();
-
-        return view('payment-success', compact('payment', 'transaction'));
+{
+    $requestId = $request->request_id;
+    if (!$requestId) {
+        return redirect()->back()->withErrors(['error' => 'No request ID found.']);
     }
+
+    $requestEntry = RequestModel::find($requestId);
+    if (!$requestEntry) {
+        return redirect()->back()->withErrors(['error' => 'Request not found.']);
+    }
+
+    $providerId = session('provider_id');
+    $provider = Provider::find($providerId);
+    if (!$provider) {
+        return redirect()->back()->withErrors(['error' => 'Provider not found.']);
+    }
+
+    $serviceName = session('service');
+    $className = session('class');
+
+    $service = Service::where('name', $serviceName)->first();
+    $class = ClassName::where('name', $className)->first();
+
+    $availability = null;
+    if ($service && $class) {
+        $availability = Availability::where('provider_id', $providerId)
+            ->where('service_id', $service->service_id)
+            ->where('class_id', $class->class_id)
+            ->first();
+    }
+
+    $zipcode_p = session('zipcode');
+    $city_p = session('city');
+    $country_p = session('country');
+    $zipcode_des = session('destination_zipcode');
+    $city_des = session('destination_locality');
+    $state_des = session('destination_state');
+    $vehicle_year = session('vehicle_year');
+    $vehicle_make = session('vehicle_make');
+    $vehicle_model = session('vehicle_model');
+    $VIN = session('VIN');
+    $Plate = session('Plate');
+    $payment = Payment::where('request_id', $requestId)->firstOrFail();
+    $transaction = Transaction::where('payment_id', $payment->payment_id)->firstOrFail();
+    $finalPrice = $payment->request_total;
+    Mail::send('emails.payment-confirmation', [
+        'provider' => $provider,
+        'service' => $serviceName,
+        'class' => $className,
+        'zipcode' => $zipcode_p,
+        'city' => $city_p,
+        'country' => $country_p,
+        'destination_zipcode' => $zipcode_des,
+        'destination_locality' => $city_des,
+        'destination_state' => $state_des,
+        'vehicle_year' => $vehicle_year,
+        'vehicle_make' => $vehicle_make,
+        'vehicle_model' => $vehicle_model,
+        'VIN' => $VIN,
+        'Plate' => $Plate,
+        'availability' => $availability,
+        'finalPrice' => $finalPrice,
+    ], function ($message) use ($provider, $requestId) {
+        $message->to($provider->provider_email)
+                ->subject('Payment Confirmed / Request #' . $requestId);
+    });
+
+
+    return view('payment-success', compact('payment', 'transaction'));
+}
+
+
 }
 
 
