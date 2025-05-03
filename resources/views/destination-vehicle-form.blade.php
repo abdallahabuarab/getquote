@@ -10,12 +10,12 @@
     <title>Destination & Vehicle Details</title>
     <style>
         body {
-            background-color: #e0f7fa; /* Light cyan background */
+            background-color: #e0f7fa;
             font-family: Arial, sans-serif;
         }
 
         .form-container {
-            background-color: #ffffff; /* White background for the form */
+            background-color: #ffffff;
             border-radius: 12px;
             padding: 40px;
             margin-top: 50px;
@@ -109,10 +109,31 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="">Business Name:</label>
-                        <input type="text" id="" name="business_name" class="form-control" placeholder="Enter business name" value="">
+                    <div class="form-group form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="isBusiness" name="is_business">
+                        <label class="form-check-label" for="isBusiness">Is this a business?</label>
                     </div>
+
+                    <div class="form-group" id="businessNameGroup" style="display: none;">
+                        <label for="business_name">Business Name:</label>
+                        <input type="text" id="business_name" name="business_name" class="form-control" placeholder="Enter business name" value="{{ old('business_name') }}">
+                    </div>
+
+                    <script>
+                        const isBusinessCheckbox = document.getElementById('isBusiness');
+                        const businessNameGroup = document.getElementById('businessNameGroup');
+
+                        isBusinessCheckbox.addEventListener('change', function () {
+                            businessNameGroup.style.display = this.checked ? 'block' : 'none';
+                        });
+
+                        window.addEventListener('DOMContentLoaded', function () {
+                            if (isBusinessCheckbox.checked) {
+                                businessNameGroup.style.display = 'block';
+                            }
+                        });
+                    </script>
+
                     <div class="form-group">
                         <label for="destination_autocomplete">Destination Address:</label>
                         <input type="text" id="destination_autocomplete" name="destination_autocomplete" class="form-control"

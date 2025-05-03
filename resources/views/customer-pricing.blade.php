@@ -85,6 +85,24 @@
             box-shadow: 0px 6px 15px rgba(220, 53, 69, 0.4);
         }
 
+        /* Form Layout */
+        form {
+            margin-top: 15px;
+        }
+
+        .reject-form {
+            margin-top: 40px; /* ADD MORE SPACE between Accept and Reject */
+        }
+
+        label {
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+            display: block;
+            text-align: left;
+            margin-top: 15px;
+        }
+
         /* Dropdown Styling */
         select {
             width: 100%;
@@ -103,20 +121,6 @@
             outline: none;
             border-color: #007bff;
             box-shadow: 0px 0px 6px rgba(0, 123, 255, 0.3);
-        }
-
-        /* Form Layout */
-        form {
-            margin-top: 15px;
-        }
-
-        label {
-            font-size: 14px;
-            color: #555;
-            font-weight: 500;
-            display: block;
-            text-align: left;
-            margin-top: 15px;
         }
 
         /* Responsive Design */
@@ -144,7 +148,7 @@
         </form>
 
         <!-- Reject Button with Reason -->
-        <form method="POST" action="{{ route('customer.pricing.reject') }}" id="rejectForm">
+        <form method="POST" action="{{ route('customer.pricing.reject') }}" id="rejectForm" class="reject-form">
             @csrf
             <input type="hidden" name="request_id" value="{{ $requestId }}">
 
@@ -156,7 +160,7 @@
                 <option value="Don't need the service anymore">Don't need the service anymore</option>
             </select>
 
-            <button type="submit" class="btn reject-btn">Reject Request</button>
+            <button type="submit" class="btn reject-btn">Decline Request</button>
         </form>
     </div>
 

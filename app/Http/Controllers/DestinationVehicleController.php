@@ -76,7 +76,11 @@ class DestinationVehicleController extends Controller
             'destination_locality' => 'nullable|string|max:32',
             'destination_administrative_area_level_1' => 'nullable|string|size:2',
             'destination_location_type_id' => 'required|exists:location_types,location_type_id',
-            'destination_name' => 'nullable|string|max:50',
+'business_name' => ['nullable', 'string', 'max:50', function ($attribute, $value, $fail) use ($request) {
+    if ($request->has('is_business') && !$value) {
+        $fail('The business name field is required when "Is this a business?" is checked.');
+    }
+}],
         ]);
 
         // Clean the ZIP code
