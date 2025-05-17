@@ -26,15 +26,18 @@ class ProviderResponseController extends Controller
     {
         return view('provider-apology', ['request_id' => $requestId]);
     }
-    public function handleProviderResponse($provider_id, $request_id, $token, Request $request)
+    public function handleProviderResponse($provider_id, $request_id, Request $request)
     {
-        // Check if the token and provider match
-        $provider = Provider::where('provider_id', $provider_id)->first();
-        $requestEntry = RequestModel::find($request_id);
-        $customer = Customer::where('request_id', $requestEntry->request_id)->first();
-        $expirationTime = session('expiration_time', Carbon::now()->timestamp);
-        return view('provider-response', compact('provider', 'requestEntry','customer','expirationTime'));
+        $provider = Provider::findOrFail($provider_id);
+        $requestEntry = RequestModel::with(['vehicle', 'service', 'classmodel'])->findOrFail($request_id);
+
+        $customer = Customer::where('request_id', $request_id)->first();
+
+        $expirationTime = Carbon::now()->addMinutes(50)->timestamp;
+
+        return view('provider-response', compact('provider', 'requestEntry', 'customer', 'expirationTime'));
     }
+
     public function submitResponse(Request $request, $provider_id, $request_id)
     {
         $existingResponse = ProviderResponse::where('provider_id', $provider_id)

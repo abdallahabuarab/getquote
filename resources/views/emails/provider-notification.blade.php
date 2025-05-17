@@ -14,6 +14,6 @@
         View Request
     </a>
 
-    <p>This link will expire in 5 minutes.</p>
+    <p>This link will expire at {{ \Carbon\Carbon::parse($expiration)->format('h:i A') }} ({{ \Carbon\Carbon::parse($expiration)->diffForHumans() }}).</p>
 </body>
 </html>

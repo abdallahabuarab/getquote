@@ -141,26 +141,25 @@ if($validatedDestinationData)
 
 
     $expires = Carbon::now()->addMinutes(50);
-    $token = Str::random(40);
-
     $secureLink = URL::temporarySignedRoute('provider.response', $expires, [
         'provider_id' => $provider->provider_id,
         'request_id' => $requestEntry->request_id,
-        'token' => $token
     ]);
-    session(['expiration_time' => $expires->timestamp]);
     // Send email notification to the provider
-    Mail::send('emails.provider-notification', [
+   Mail::send('emails.provider-notification', [
         'service_name' => $service->name,
         'secureLink' => $secureLink,
         'provider' => $provider,
-    ], function ($message) use ($provider,$requestId) {
+        'expiration' => $expires->toDateTimeString()
+    ], function ($message) use ($provider, $requestId) {
         $message->to($provider->provider_email)
-                ->subject('New Service Request/'.$requestId);
+                ->subject('New Service Request/' . $requestId);
     });
 
-
-    return redirect()->route('customer.loading', ['request_id' => $requestEntry->request_id,'provider_id'=>$provider]);
+    return redirect()->route('customer.loading', [
+        'request_id' => $requestEntry->request_id,
+        'provider_id' => $providerId,
+    ]);
 }
 /**
  * Validate the destination location using the Google Geocoding API.

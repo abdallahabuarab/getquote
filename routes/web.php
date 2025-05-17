@@ -54,7 +54,7 @@ Route::get('/customer/loading/{request_id}', [CustomerController::class, 'showLo
 Route::get('/customer/apology/{request_id}/{reason}', [CustomerController::class, 'showApology'])->name('customer.apology');
 
 
-Route::get('/provider/response/{provider_id}/{request_id}/{token}', [ProviderResponseController::class, 'handleProviderResponse'])
+Route::get('/provider/response/{provider_id}/{request_id}', [ProviderResponseController::class, 'handleProviderResponse'])
     ->name('provider.response')
     ->middleware('signed');
     Route::post('/provider/response/{provider_id}/{request_id}', [ProviderResponseController::class, 'submitResponse'])
