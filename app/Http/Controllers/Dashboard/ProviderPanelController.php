@@ -139,22 +139,24 @@ public function updateZipCodes(Request $request, Provider $provider)
             'required',
             'exists:zipcode_reference,zipcode',
             function ($attribute, $value, $fail) use ($request, $provider) {
-                $rank = $request->zip_codes[array_search($value, array_column($request->zip_codes, 'zipcode'))]['rank']?? 1;
+                $rank = $request->zip_codes[array_search($value, array_column($request->zip_codes, 'zipcode'))]['rank'] ?? 1;
                 $existing = DB::table('zipcode_coverage')
                     ->where('zipcode', $value)
                     ->where('rank', $rank)
                     ->where('provider_id', '!=', $provider->provider_id)
                     ->exists();
                 if ($existing) {
-                    $fail("The ZIP code $value is already assigned with rank $rank to another provider.");
+                    $fail("ZIP code $value is already assigned with rank $rank to another provider.");
                 }
             },
         ],
         'zip_codes.*.rank' => 'required|integer|in:1,2,3',
+    ], [], [
+        'zip_codes.*.zipcode' => 'ZIP Code',
+        'zip_codes.*.rank' => 'Rank',
     ]);
 
     foreach ($request->zip_codes as $zipCode) {
-
         $provider->zipCodes()->syncWithoutDetaching([
             $zipCode['zipcode'] => ['rank' => $zipCode['rank']],
         ]);

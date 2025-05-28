@@ -68,11 +68,6 @@
                                     </td>
                                 </tr>
 
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center text-muted">No availabilities found for this provider.</td>
-                                    </tr>
-                                @endforelse
                                 @if ($availability->provider && $availability->provider->schedules)
                                     <tr>
                                         <td colspan="8">
@@ -104,6 +99,11 @@
                                         </td>
                                     </tr>
                                 @endif
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">No availabilities found for this provider.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

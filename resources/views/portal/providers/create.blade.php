@@ -34,7 +34,7 @@
                             <div class="row mb-3">
                                 <label for="provider_name" class="col-sm-2 col-form-label">Provider Name</label>
                                 <div class="col-sm-4">
-                                    <input class="form-control @error('provider_name') is-invalid @enderror" type="text" id="provider_name" name="provider_name" value="{{ old('provider_name') }}" placeholder="Enter provider name" required>
+                                    <input class="form-control @error('provider_name') is-invalid @enderror" type="text" id="provider_name" name="provider_name" value="" placeholder="Enter provider name" required>
                                     @error('provider_name')
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
@@ -45,7 +45,7 @@
                                 <div class="col-sm-4">
                                     <input class="form-control @error('tax_id') is-invalid @enderror"
                                            type="text" id="tax_id" name="tax_id"
-                                           value="{{ old('tax_id') }}"
+                                           value=""
                                            placeholder="Enter 9-digit Tax ID" required>
                                     @error('tax_id')
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
@@ -56,7 +56,7 @@
                             <div class="row mb-3">
                                 <label for="provider_name" class="col-sm-2 col-form-label">Contact Name</label>
                                 <div class="col-sm-4">
-                                    <input class="form-control @error('provider_name') is-invalid @enderror" type="text" id="provider_name" name="contact_name" value="{{ old('provider_name') }}" placeholder="Enter provider name" required>
+                                    <input class="form-control @error('provider_name') is-invalid @enderror" type="text" id="provider_name" name="contact_name" value="" placeholder="Enter provider name" required>
                                     @error('provider_name')
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
@@ -66,7 +66,7 @@
                             <div class="row mb-3">
                                 <label for="provider_email" class="col-sm-2 col-form-label">Email</label>
                                 <div class="col-sm-4">
-                                    <input class="form-control @error('provider_email') is-invalid @enderror" type="email" id="provider_email" name="provider_email" value="{{ old('provider_email') }}" placeholder="Enter email address" required>
+                                    <input class="form-control @error('provider_email') is-invalid @enderror" type="email" id="provider_email" name="provider_email" value="" placeholder="Enter email address" required>
                                     @error('provider_email')
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
@@ -89,33 +89,22 @@
                                     <input class="form-control" type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm password" required>
                                 </div>
                             </div>
-                            <div class="row mb-3">
-                                <label for="provider_zipcode" class="col-sm-2 col-form-label">Provider ZIP Code</label>
-                                <div class="col-sm-4">
-                                    <input class="form-control @error('provider_zipcode') is-invalid @enderror" type="text" id="provider_zipcode" name="provider_zipcode" value="{{ old('provider_zipcode') }}" placeholder="Enter provider ZIP code" required>
-                                    @error('provider_zipcode')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
 
                             <div class="row mb-3">
                                 <label for="provider_phone" class="col-sm-2 col-form-label">Phone</label>
                                 <div class="col-sm-4">
-                                    <input class="form-control @error('provider_phone') is-invalid @enderror" type="text" id="provider_phone" name="provider_phone" value="{{ old('provider_phone') }}" placeholder="Enter phone number" required>
+                                    <input class="form-control @error('provider_phone') is-invalid @enderror" type="text" id="provider_phone" name="provider_phone" value="" placeholder="Enter phone number" required>
                                     @error('provider_phone')
-                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label for="provider_phone" class="col-sm-2 col-form-label">Contact Phone</label>
                                 <div class="col-sm-4">
-                                    <input class="form-control @error('provider_phone') is-invalid @enderror" type="text" id="contact_phone" name="contact_phone" value="{{ old('provider_phone') }}" placeholder="Enter phone number" required>
+                                    <input class="form-control @error('provider_phone') is-invalid @enderror" type="text" id="contact_phone" name="contact_phone" value="" placeholder="Enter phone number" required>
                                     @error('provider_phone')
-                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
                             </div>
@@ -123,9 +112,9 @@
                             <div class="row mb-3">
                                 <label for="provider_address" class="col-sm-2 col-form-label">Address</label>
                                 <div class="col-sm-4">
-                                    <input class="form-control @error('provider_address') is-invalid @enderror" type="text" id="provider_address" name="provider_address" value="{{ old('provider_address') }}" placeholder="Enter address" required>
+                                    <input class="form-control @error('provider_address') is-invalid @enderror" type="text" id="provider_address" name="provider_address" value="" placeholder="Enter address" required>
                                     @error('provider_address')
-                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
                             </div>
@@ -133,9 +122,9 @@
                             <div class="row mb-3">
                                 <label for="provider_city" class="col-sm-2 col-form-label">City</label>
                                 <div class="col-sm-4">
-                                    <input class="form-control @error('provider_city') is-invalid @enderror" type="text" id="provider_city" name="provider_city" value="{{ old('provider_city') }}" placeholder="Enter city" required>
+                                    <input class="form-control @error('provider_city') is-invalid @enderror" type="text" id="provider_city" name="provider_city" value="" placeholder="Enter city" required>
                                     @error('provider_city')
-                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                     @enderror
                                 </div>
                             </div>
@@ -143,13 +132,24 @@
                             <div class="row mb-3">
                                 <label for="provider_state" class="col-sm-2 col-form-label">State</label>
                                 <div class="col-sm-4">
-                                    <input class="form-control @error('provider_state') is-invalid @enderror" type="text" id="provider_state" name="provider_state" value="{{ old('provider_state') }}" placeholder="Enter state" required>
+                                    <input class="form-control @error('provider_state') is-invalid @enderror" type="text" id="provider_state" name="provider_state" value="" placeholder="Enter state" required>
                                     @error('provider_state')
                                         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                    @enderror
+                                        @enderror
                                 </div>
                             </div>
 
+                            <div class="row mb-3">
+                                <label for="provider_zipcode" class="col-sm-2 col-form-label">Provider ZIP Code</label>
+                                <div class="col-sm-4">
+                                    <input class="form-control @error('provider_zipcode') is-invalid @enderror" type="text" id="provider_zipcode" name="provider_zipcode" value="" placeholder="Enter provider ZIP code" required>
+                                    @error('provider_zipcode')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
                             <!-- Classes and Services -->
                             {{-- <div class="row mb-3">
                                 <label for="class_ids" class="col-sm-2 col-form-label">Classes</label>
