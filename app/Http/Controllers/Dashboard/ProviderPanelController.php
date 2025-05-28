@@ -373,6 +373,14 @@ public function update(Request $request, Provider $provider)
     return redirect()->route('providerspa.index')->with('success', 'Provider updated successfully.');
 }
 
+public function destroy(Provider $provider)
+{
+    $provider->user()->delete();
+
+    $provider->delete();
+
+    return redirect()->route('providerspa.index')->with('success', 'Provider deleted successfully.');
+}
 
 
     private function providerData(Request $request)
