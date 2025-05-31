@@ -63,7 +63,7 @@ class DestinationVehicleController extends Controller
 
 
     $service = Service::find($requestEntry->request_service);
-    if ($service && strtolower($service->name) === 'tow') {
+    if ($service && $service->name === 'Towing Service') {
         $validatedDestinationData = $request->validate([
             'destination_zipcode' => [
         'required',

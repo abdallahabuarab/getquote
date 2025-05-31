@@ -176,7 +176,7 @@ public function calculateFinalPrice($requestId, $providerId)
 
     //  Step 7: Calculate Loaded Miles Charge (Only for Tow Services)
     $service = Service::find($requestEntry->request_service);
-    if (strtolower($service->name) === 'tow') { // If service is towing
+    if (($service->name) === 'Towing Service') { // If service is towing
         $destination = Destination::where('request_id', $requestId)->first();
         if (!$destination) {
             return redirect()->back()->withErrors(['error' => 'Destination not found.']);
